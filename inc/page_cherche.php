@@ -18,7 +18,7 @@
  *
  */
  
-$classe = base64_decode($_GET['id']);
+$cherche = $_GET['q'];
 ?>
 
 <!-- Modal -->
@@ -56,23 +56,25 @@ Plus les caractères spéciaux ~!@#$%&*_-+|\(){}[]:;<>,.?/">
 
 
 <div class="container">
-<h3>Elèves dans la classe <?php echo $classe; ?></h3>
+<h3>Recherche : <?php echo $cherche; ?></h3>
 
 <table class="table table-striped table-hover">
 <thead class="table-dark">
 <tr>
 	<th></th>
+	<th>Classe</th>
 	<th>Identifiant IACA</th>
 	<th>Mot de passe</th>
 </tr>
 </thead>
 
 <?php
-$list = $ldap->get_usergroups( $classe );
+$list = $ldap->find_users( $cherche );
 sort($list);
 foreach ($list as $entry) {
 	echo '<tr>
 	<td>' . $entry['NomComplet'] .'</td>
+	<td>' . $entry['Classe'] .'</td>
 	<td>' . $entry['Identifiant'] .'</td>
 	<td>';
 	if ($entry['logoncount'] == 0) {

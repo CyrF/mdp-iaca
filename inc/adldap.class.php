@@ -87,7 +87,7 @@ class AnnuaireLDAP {
 		$Autorized = false;
 		
 		// tente une connection a l'ad...
-		$bind = ldap_bind($this->ds, "{$_CONF['AD_Domain']}\\". ldap_escape($username, '', LDAP_ESCAPE_DN), $password);
+			$bind = @ldap_bind($this->ds, "{$_CONF['AD_Domain']}\\". ldap_escape($username, '', LDAP_ESCAPE_DN), $password);
 		if ($bind) {
 			// recherche le chemin complet de l'user pour savoir a quelle UO il appartient.
 			$res = ldap_search($this->ds, $_CONF['AD_Chemin'], "(sAMAccountName=". ldap_escape($username, '', LDAP_ESCAPE_DN).")");
@@ -115,13 +115,13 @@ class AnnuaireLDAP {
 	 *	@return array
 	 */
 	function get_users_info($uid='*'){
+		global $_CONF;
 		$this->connecter();
 		$res = ldap_search($this->ds, $_CONF['AD_Chemin'], "(sAMAccountName=". ldap_escape($uid, '', LDAP_ESCAPE_DN).")");
 		$first = ldap_first_entry($this->ds, $res);
-		
 		return array(
-			'cn' => ldap_get_values($this->ds, $first, "displayname"),
-			'uid' => ldap_get_values($this->ds, $first, "samaccountname"));
+			'cn' => ldap_get_values($this->ds, $first, "displayname")[0],
+			'uid' => ldap_get_values($this->ds, $first, "samaccountname")[0]);
 	}
 
 	/**
@@ -132,28 +132,78 @@ class AnnuaireLDAP {
 	 *	@return array
 	 */
 	function get_usergroups($classe) {
-		$this->connecter();
+		$this->connecter(true);
 		$justthese = array("cn", "displayname", "samaccountname", "userprincipalname", "logoncount");
 		$resultat = array();
 		
 		// liste les eleves dans une uo
-		$basedn = "OU=TG-03,OU=ELEVES,OU=Users,OU=Site par défaut,OU=IACA,DC=bourdonnieres,DC=local";
 		$lsclass = ldap_list($this->ds, 
 			"OU=" . ldap_escape($classe, '*', LDAP_ESCAPE_FILTER). ',' . $this->ldap_ou_elv, 
 			"(&(objectCategory=person)(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))", 
 			$justthese);
-		//ldap_sort($this->ds, $lsclass, "samaccountname" );
+			
+		if (!($lsclass)) { 
+			echo "<p>Error:" . ldap_error($this->ds) . "</p>"; 
+			echo "<p>Error:" . ldap_err2str(ldap_errno($this->ds)) . "</p>"; 
+			die;
+		}
+		
 		$info = ldap_get_entries($this->ds, $lsclass);
 		for ($i=0; $i < $info["count"]; $i++) {
+			$logoncount = (isset ($info[$i]["logoncount"]))? $info[$i]["logoncount"][0] : 0;
 			$resultat[] = array(
 				'NomComplet' => $info[$i]["displayname"][0],
 				'Identifiant' => $info[$i]["samaccountname"][0],
-				'logoncount' => $info[$i]["logoncount"][0]);
+				'logoncount' => $logoncount);
 		}
 		sort($resultat);
 		return $resultat;
 	}
 	
+
+	/**
+	 * Recherche un ou des utilisateurs
+	 *
+	 *	@param string $cherche	utilisateur a rechercher
+	 *
+	 *	@return array
+	 */
+	function find_users($cherche) {
+		$this->connecter(true);
+		$justthese = array("cn", "displayname", "samaccountname", "userprincipalname", "logoncount", "distinguishedname");
+		$resultat = array();
+		
+		if ($cherche == '') {
+			// champ recherche vide ?
+			return $resultat;
+		}
+		
+		// liste les eleves dans une uo
+		$lsclass = ldap_search($this->ds, 
+			$this->ldap_ou_elv, 
+			"(displayname=*$cherche*)", 
+			$justthese);
+			
+		if (!($lsclass)) { 
+    echo "<p>Error:" . ldap_error($this->ds) . "</p>"; 
+    echo "<p>Error:" . ldap_err2str(ldap_errno($this->ds)) . "</p>"; 
+    die;
+} 	
+		$info = ldap_get_entries($this->ds, $lsclass);
+		for ($i=0; $i < $info["count"]; $i++) {
+			$logoncount = (isset ($info[$i]["logoncount"]))? $info[$i]["logoncount"][0] : 0;
+			$classe = str_replace( ',' . $this->ldap_ou_elv, '', $info[$i]["distinguishedname"][0]);
+			
+			$classe = substr($classe, strlen($info[$i]["samaccountname"][0]) + 7);
+			$resultat[] = array(
+				'NomComplet' => $info[$i]["displayname"][0],
+				'Classe' => $classe,
+				'Identifiant' => $info[$i]["samaccountname"][0],
+				'logoncount' => $logoncount);
+		}
+		sort($resultat);
+		return $resultat;
+	}
 	
 	/**
 	 * Retourne les classes non vides
@@ -162,21 +212,20 @@ class AnnuaireLDAP {
 	 *	@return array
 	 */
 	function get_classes(){
-		$this->connecter();
+		$this->connecter(true);
 		$justthese = array("ou", "cn");
 		$resultat = array();
 		
 		// liste les OU dans eleves
-		$lsclass = ldap_list($this->ds, $this->ldap_ou_elv, "(objectClass=organizationalUnit)", $justthese);
+		$lsclass = ldap_search($this->ds, $this->ldap_ou_elv, "(objectClass=organizationalUnit)", $justthese);
 		$info = ldap_get_entries($this->ds, $lsclass);
-		
 		// parcours les OU, compte les membres actifs pour eliminer les OU vides
 		for ($i=0; $i < $info["count"]; $i++) {
 			$lsmemb = ldap_list($this->ds, 
 				$info[$i]['dn'], 
 				"(&(objectCategory=person)(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))", 
 				$justthese);
-			if (ldap_count_entries($this->ds, lsmemb) > 0) {
+			if (ldap_count_entries($this->ds, $lsmemb) > 0) {
 				$resultat[] = $info[$i]["ou"][0];
 			}
 		}
