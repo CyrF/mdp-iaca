@@ -38,12 +38,12 @@ if (isset($_SESSION['timestamp'])) {
 		session_destroy();
 		session_unset();
 		$expired = true;
+		header("Location: index.php?sessionexpired");
 	} else {
 		$_SESSION['timestamp']=time();
 	}
 }
 
-$ldap = new AnnuaireLDAP( $_CONF['AD_ServerIP'], "{$_CONF['AD_Domain']}\\{$_SESSION['user_id']}", $_SESSION['user_pass'], $_CONF['AD_OU_ELEVES'] );
 
 if ( ! empty( $_GET ) ) {
 	if ( isset( $_GET['logout'] )) {	// deconnecte l'utilisateur
@@ -62,10 +62,12 @@ if ( ! empty( $_GET ) ) {
 if ( ! empty( $_POST ) ) {
     if ( isset( $_POST['username'] ) && isset( $_POST['password'] ) ) {
 		// quelqu'un essaie de se connecter...
+		$ldap = new AnnuaireLDAP( $_CONF['AD_ServerIP'], "", "", $_CONF['AD_OU_ELEVES'] );
 		$is_auth = $ldap->authentifier($_POST['username'], $_POST['password']);
 		if ($is_auth != false) {
 			$userinfo = $ldap->get_users_info($_POST['username']);
 			$_SESSION['user_id'] =$_POST['username'];
+			$_SESSION['user_pass'] =$_POST['password'];
 			$_SESSION['user_name'] = $userinfo['cn'];
 			$_SESSION['timestamp'] = time();
     	} else {
@@ -77,6 +79,9 @@ if ( ! empty( $_POST ) ) {
 		}
     }
 }
+
+$ldap = new AnnuaireLDAP( $_CONF['AD_ServerIP'], "{$_CONF['AD_Domain']}\\{$_SESSION['user_id']}", $_SESSION['user_pass'], $_CONF['AD_OU_ELEVES'] );
+
 ?>
 <!DOCTYPE html>
 <html dir="ltr" lang="fr">
@@ -87,7 +92,7 @@ if ( ! empty( $_POST ) ) {
     <!-- Bootstrap core CSS -->
 <link href="https://getbootstrap.com/docs/5.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-	<link href="inc/style-base.css" rel="stylesheet" type="text/css">
+	<link href="./inc/style-base.css" rel="stylesheet" type="text/css">
 	<title>Mot de passe IACA</title>
 </head>
 <?php
@@ -99,8 +104,11 @@ if ( isset( $_SESSION['user_id'] ) && ! empty( $_SESSION['user_id'] ) ) {
 
 <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
   <div class="container-fluid">
-    <a class=" navbar-brand" href="."> <img src="pass-blk.jpg" width="33" height="24">&nbsp;Consultation des Comptes Iaca</a>
-    <a class="btn btn-outline-success" href="?logout">Deconnexion <?php echo $_SESSION['user_name']; ?></a>
+    <a class=" navbar-brand" href="."> <img src="./pass-blk.jpg" width="33" height="24">&nbsp;Consultation des comptes Iaca </a>
+	<form> <input type="text" class="form-control" id="floatingsearch" placeholder="Rechercher..." name="q">
+	<input type="hidden" id="floatingsearch" value="cherche" name="pg">
+</form> 
+    <a class="btn btn-outline-success" href="?logout">Déconnexion <?php echo $_SESSION['user_name']; ?></a>
     </div>
 </nav>
 		<div id="contenu">
@@ -124,9 +132,9 @@ if ( file_exists("inc/page_". $pageid .".php") ) {
     
 <main class="form-signin">
   <form action="." method="POST">
-    <img class="mb-4" src="pass.jpg" alt="" width="72" height="57">
-    <h3 class="h4 mb-3 fw-normal">Gestion des mots de passe</h3>
-    <h1 class="h3 mb-3 fw-normal">Veuillez vous identifiez</h1>
+    <img class="mb-4" src="./pass.jpg" alt="" width="72" height="57">
+    <h3 class="h4 mb-2 fw-normal">Gestion des mots de passe</h3>
+    <h1 class="h3 mb-3 fw-normal">Identification de l'enseignant</h1>
 <?php
 if ($expired) {
 	echo '<div class="alert alert-warning">info: votre session a expirée.</div>';
@@ -138,9 +146,9 @@ if ( isset( $_SESSION['failed_count'] ) && $_SESSION['failed_count'] >= 3 ) {
 	echo '<div class="alert alert-danger">Erreur: Nombre de tentatives dépassées.</div>';
 } else {
 		?>
-    <div class="form-floating mb-3">
+    <div class="form-floating mb-4">
       <input type="text" class="form-control" id="floatingInput" placeholder="Identifiant" name="username" required>
-      <label for="floatingInput">Utilisateur (Identifiant de session IACA)</label>
+      <label for="floatingInput"> Utilisateur (Identifiant de session IACA)</label>
     </div>
     <div class="form-floating">
       <input type="password" class="form-control" id="floatingPassword" placeholder="Mot de passe" name="password" required>

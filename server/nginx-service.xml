@@ -1,0 +1,13 @@
+<!--fc2021-09 configuration du service NGINX-->
+<service>
+  <id>nginx</id>
+  <name>Nginx</name>
+  <description>Serveur web Nginx</description>
+  <executable>c:\Program Files\nginx\nginx.exe</executable>
+  <logpath>c:\Program Files\nginx\</logpath>
+  <logmode>roll</logmode>
+  <depend></depend>
+  <startargument>-p</startargument>
+  <startargument>c:\Program Files\nginx</startargument>
+  <stopexecutable>c:\Program Files\nginx\nginx-stop.bat</stopexecutable>
+</service>

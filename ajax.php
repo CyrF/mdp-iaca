@@ -31,19 +31,25 @@ if ( isset( $_SESSION['user_id'] ) && ! empty( $_SESSION['user_id'] ) ) {
 		echo "Votre session a expirée.";
 	} else {		
 		if ( isset( $_GET['set'] )) {
-			// demande a iaca de changer le mdp
-			$utilisateur = htmlspecialchars($_GET['uid']);
-			$mdp = htmlspecialchars($_GET['set']);
-		//	echo iaca_setmdp($utilisateur, $mdp);
-			sleep(2);
-			echo "OK";
+			// on recoit les infos encodées en base64
+			$utilisateur =	base64_decode(htmlspecialchars($_GET['uid']));
+			$mdp =			base64_decode(htmlspecialchars($_GET['set']));
+			
+			$result = "SET=". iaca_setmdp($utilisateur, $mdp);	// demande a iaca de changer le mdp
+		//	$result .= " HIDE=". iaca_hidemdp($utilisateur);	// marche pas pour l'instant
+		
+			if ($result == "SET=OK HIDE=OK" or $result == "SET=OK") {
+				echo "OK";
+			} else {
+				echo $result;
+			}
 		}
 		if ( isset( $_GET['get'] )) {
+			// on recoit les infos encodées en base64
+			$utilisateur =	base64_decode( htmlspecialchars($_GET['get']));
+			
 			// demande un mdp a iaca 
-			$utilisateur = htmlspecialchars($_GET['get']);
-		//	echo iaca_getmdp($utilisateur);
-			sleep(1);
-			echo "s7jAV5XuLioe4e6H9JhVwRpv";
+			echo iaca_getmdp( $utilisateur );
 		}
 	}
 } else {
@@ -60,6 +66,7 @@ if ( isset( $_SESSION['user_id'] ) && ! empty( $_SESSION['user_id'] ) ) {
  *	@return string				"OK" | "Erreur"
  */
 function iaca_setmdp($utilisateur, $mdp) {
+	global $_CONF;
 	$REPONSE="";
 	$fp=fsockopen($_CONF['AD_ServerIP'],5016,$numerr,$strerr,1);
 	if ($fp) {
@@ -74,6 +81,27 @@ function iaca_setmdp($utilisateur, $mdp) {
 	}
 }
 
+/**
+ * demande a iaca de masquer le mdp
+ *
+ *	@param string $utilisateur	nom d'utilisateur dans l'AD
+ *
+ *	@return string				"OK" | "Erreur"
+ */
+function iaca_hidemdp($utilisateur) {
+	global $_CONF;
+	$REPONSE="";		
+	$fp=stream_socket_client("tcp://{$_CONF['AD_ServerIP']}:5016",$numerr,$strerr,1);
+	if ($fp) {		
+		fwrite($fp,"NU=$utilisateur|MDP=**************\r\n");
+		stream_set_timeout($fp, 2);
+		$REPONSE=stream_get_contents($fp);
+	}
+	fclose($fp);
+	if (strchr($REPONSE, "MDP_OK")) {
+		return "OK";
+	}
+}
 
 /**
  * demande un mdp a iaca 
@@ -83,13 +111,15 @@ function iaca_setmdp($utilisateur, $mdp) {
  *	@return string				mot de passe courant | ****
  */
 function iaca_getmdp($utilisateur) {
+	global $_CONF;
 	$REPONSE="";
+	//$utilisateur = substr($utilisateur, 4);
 	$fp=fsockopen($_CONF['AD_ServerIP'],5016,$numerr,$strerr,1);
 	if ($fp) {
 		fputs($fp,"NU=$utilisateur|GETMDP");
 		$REPONSE=fgets($fp,64);
 	}
 	fclose($fp);
-	
-	return substr($REPONSE, strlen($utilisateur) + 11);
+	// supprime l'entete recue pour retourner que le mdp
+	return trim(substr($REPONSE, strlen($utilisateur) + 11));
 }
