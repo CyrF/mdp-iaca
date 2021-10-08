@@ -20,17 +20,16 @@
  */
 ?>
 <div class="container">
+	<h3>Sélectionner la classe :</h3>
 <table>
-<tr>
-	<th>Selectionner la classe :</th>
-</tr>
+
 
 <?php
 $list = $ldap->get_classes();
 
 sort($list);
 foreach ($list as $entry) {
-	echo '	<tr><td><a href="?pg=classe&id=' . base64_encode($entry) . '" />'. $entry .'</td></tr>';
+	echo '	<tr><td><a class="btn btn-outline-success" style="width:100%" href="?pg=classe&id=' . base64_encode($entry) . '" />'. $entry .'</td></tr>';
 }
 ?>
 </table>
