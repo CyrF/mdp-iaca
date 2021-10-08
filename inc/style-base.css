@@ -51,4 +51,25 @@ body {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-	  
+	 
+/* ------------- adaptation pour l'impression -------------- */
+@media print {
+	body {
+		background-color:unset;
+	}
+	.container {
+		max-width:unset;
+	}
+	.vignet-tr {
+		display:inline-block;
+		max-width:48vw;
+		width:48vw;
+		border:1px solid;
+	} 
+	.vignet-td {
+		display:block;
+		border:unset;
+		padding:0px 10px 0px 10px !important;
+		box-shadow:unset !important;
+	} 
+} 
