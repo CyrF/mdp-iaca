@@ -154,6 +154,7 @@ class AnnuaireLDAP {
 			$resultat[] = array(
 				'NomComplet' => $info[$i]["displayname"][0],
 				'Identifiant' => $info[$i]["samaccountname"][0],
+				'Compte365' => $info[$i]["userprincipalname"][0],
 				'logoncount' => $logoncount);
 		}
 		sort($resultat);

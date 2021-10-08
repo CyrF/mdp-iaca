@@ -48,7 +48,7 @@ Plus les caractères spéciaux ~!@#$%&*_-+|\(){}[]:;<>,.?/">
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="setMdp();">Enregistrer</button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="setMdp();" id="modal-save">Enregistrer</button>
       </div>
     </div>
   </div>
@@ -59,10 +59,11 @@ Plus les caractères spéciaux ~!@#$%&*_-+|\(){}[]:;<>,.?/">
 <h3>Elèves dans la classe <?php echo $classe; ?></h3>
 
 <table class="table table-striped table-hover">
-<thead class="table-dark">
-<tr>
+<thead class="table-dark d-print-none">
+<tr class="vignet-tr">
 	<th></th>
 	<th>Identifiant IACA</th>
+	<th></th>
 	<th>Mot de passe</th>
 </tr>
 </thead>
@@ -71,13 +72,14 @@ Plus les caractères spéciaux ~!@#$%&*_-+|\(){}[]:;<>,.?/">
 $list = $ldap->get_usergroups( $classe );
 sort($list);
 foreach ($list as $entry) {
-	echo '<tr>
-	<td>' . $entry['NomComplet'] .'</td>
-	<td>' . $entry['Identifiant'] .'</td>
-	<td>';
+	echo '<tr class="vignet-tr">
+	<td class="vignet-td">' . $entry['NomComplet'] .'<span class="d-none d-print-inline"> (' . $classe . ')</span></td>
+	<td class="vignet-td"><span class="d-none d-print-inline">Identifiant réseau : </span>' . $entry['Identifiant'] .'</td>
+	<td class="vignet-td"><span class="d-none d-print-inline">Id. Office365 : ' . $entry['Compte365'] .'</span></td>
+	<td class="vignet-td">';
 	if ($entry['logoncount'] == 0) {
 		// pas encore logué, donc le mdp est provisoire
-		echo "<span type='button' class='btn btn-outline-success btn-sm' 
+		echo "<span type='button' class='btn btn-outline-success btn-sm d-print-none' 
 				id='pwd_{$entry['Identifiant']}' onclick='getMdp(this.id);'
 				data-bs-target='#MotdePasseModal' 
 				data-bs-uid='" . str_replace('=', '', base64_encode($entry['Identifiant'])) . "' data-bs-name='{$entry['NomComplet']}'>
@@ -85,7 +87,7 @@ foreach ($list as $entry) {
 			</span>";
 	} else {
 		// le compte a servi, donc le mdp a été personnalisé
-		echo "<span type='button' class='btn btn-outline-success btn-sm' 
+		echo "<span type='button' class='btn btn-outline-success btn-sm d-print-none' 
 				id='pwd_{$entry['Identifiant']}' onclick='getMdp(this.id);'
 				data-bs-toggle='modal' data-bs-target='#MotdePasseModal' 
 				data-bs-uid='" . str_replace('=', '', base64_encode($entry['Identifiant'])) . "' data-bs-name='{$entry['NomComplet']}'>
@@ -137,7 +139,7 @@ function getMdp( elem ) {
 				} else {
 					// affichage
 					btn_pwd.disabled = false
-					btn_pwd.innerHTML = text;
+					btn_pwd.innerHTML = '<span class="d-none d-print-inline">Mot de passe : </span>' + text;
 					btn_pwd.setAttribute('enclair', true);
 				}
 			});
@@ -168,7 +170,7 @@ function setMdp() {
 				if (text == 'OK') {
 					// affichage
 					btn_pwd.disabled = false
-					btn_pwd.innerHTML = modalBodyPw.value;	
+					btn_pwd.innerHTML = '<span class="d-none d-print-inline">Mot de passe : </span>' + modalBodyPw.value;	
 					btn_pwd.setAttribute('enclair', true);
 				} else if (text == "Votre session a expirée.") {
 					window.location.replace("?sessionexpired");
@@ -199,6 +201,11 @@ function generate_pwd(input, length) {
 	input.select();
 }
 
+/**
+ * prérempli la fenetre modal avec les bonnes valeurs
+ *
+ *	@return null
+ */
 var MotdePasseModal = document.getElementById('MotdePasseModal')
 MotdePasseModal.addEventListener('show.bs.modal', function (event) {
   // Button that triggered the modal
@@ -206,9 +213,6 @@ MotdePasseModal.addEventListener('show.bs.modal', function (event) {
   // Extract info from data-bs-* attributes
   var NomComplet = button.getAttribute('data-bs-name')
   var Identifiant = button.getAttribute('data-bs-uid')
-  // If necessary, you could initiate an AJAX request here
-  // and then do the updating in a callback.
-  //
   // Update the modal's content.
   var modalTitle = MotdePasseModal.querySelector('.modal-title')
   var modalBodyId = MotdePasseModal.querySelector('.modal-body #floatingInput')
@@ -219,4 +223,18 @@ MotdePasseModal.addEventListener('show.bs.modal', function (event) {
   modalBodyPw.value = ''
 })
 
+/**
+ * valide la fenetre quand on apppuie sur entree
+ *
+ *	@return null
+ */
+var input = document.getElementById("floatingPass");
+input.addEventListener("keyup", function(event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    event.preventDefault();
+    // Trigger the button element with a click
+    document.getElementById("modal-save").click();
+  }
+}); 
 </script>

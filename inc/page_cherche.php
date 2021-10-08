@@ -48,7 +48,7 @@ Plus les caractères spéciaux ~!@#$%&*_-+|\(){}[]:;<>,.?/">
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="setMdp();">Enregistrer</button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="setMdp();" id="modal-save">Enregistrer</button>
       </div>
     </div>
   </div>
@@ -201,6 +201,11 @@ function generate_pwd(input, length) {
 	input.select();
 }
 
+/**
+ * prérempli la fenetre modal avec les bonnes valeurs
+ *
+ *	@return null
+ */
 var MotdePasseModal = document.getElementById('MotdePasseModal')
 MotdePasseModal.addEventListener('show.bs.modal', function (event) {
   // Button that triggered the modal
@@ -208,9 +213,6 @@ MotdePasseModal.addEventListener('show.bs.modal', function (event) {
   // Extract info from data-bs-* attributes
   var NomComplet = button.getAttribute('data-bs-name')
   var Identifiant = button.getAttribute('data-bs-uid')
-  // If necessary, you could initiate an AJAX request here
-  // and then do the updating in a callback.
-  //
   // Update the modal's content.
   var modalTitle = MotdePasseModal.querySelector('.modal-title')
   var modalBodyId = MotdePasseModal.querySelector('.modal-body #floatingInput')
@@ -221,4 +223,18 @@ MotdePasseModal.addEventListener('show.bs.modal', function (event) {
   modalBodyPw.value = ''
 })
 
+/**
+ * valide la fenetre quand on apppuie sur entree
+ *
+ *	@return null
+ */
+var input = document.getElementById("floatingPass");
+input.addEventListener("keyup", function(event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    event.preventDefault();
+    // Trigger the button element with a click
+    document.getElementById("modal-save").click();
+  }
+}); 
 </script>
