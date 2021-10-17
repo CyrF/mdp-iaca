@@ -72,6 +72,8 @@ Plus les caractères spéciaux ~!@#$%&*_-+|\(){}[]:;<>,.?/">
 $list = $ldap->find_users( $cherche );
 sort($list);
 foreach ($list as $entry) {
+	$b64_uid = b64($entry['Identifiant']);
+	$b64_name = b64($entry['NomComplet']);
 	echo '<tr>
 	<td>' . $entry['NomComplet'] .'</td>
 	<td>' . $entry['Classe'] .'</td>
@@ -79,18 +81,18 @@ foreach ($list as $entry) {
 	<td>';
 	if ($entry['logoncount'] == 0) {
 		// pas encore logué, donc le mdp est provisoire
-		echo "<span type='button' class='btn btn-outline-success btn-sm' 
-				id='pwd_{$entry['Identifiant']}' onclick='getMdp(this.id);'
-				data-bs-target='#MotdePasseModal' 
-				data-bs-uid='" . str_replace('=', '', base64_encode($entry['Identifiant'])) . "' data-bs-name='{$entry['NomComplet']}'>
+		echo "<span type='button' class='btn btn-outline-success btn-sm d-print-none' 
+				id='pwd_{$b64_uid}' onclick='getMdp(this.id);'
+				data-bs-target='#MotdePasseModal' name='motdepasse'
+				data-bs-uid='{$b64_uid}' data-bs-name='{$b64_name}'>
 					Le compte n'a pas été utilisé : voir le mdp provisoire
 			</span>";
 	} else {
 		// le compte a servi, donc le mdp a été personnalisé
-		echo "<span type='button' class='btn btn-outline-success btn-sm' 
-				id='pwd_{$entry['Identifiant']}' onclick='getMdp(this.id);'
+		echo "<span type='button' class='btn btn-outline-success btn-sm d-print-none' 
+				id='pwd_{$b64_uid}' onclick='getMdp(this.id);'
 				data-bs-toggle='modal' data-bs-target='#MotdePasseModal' 
-				data-bs-uid='" . str_replace('=', '', base64_encode($entry['Identifiant'])) . "' data-bs-name='{$entry['NomComplet']}'>
+				data-bs-uid='{$b64_uid}' data-bs-name='{$b64_name}'>
 					Réinitialiser avec un nouveau mot de passe
 			</span>";
 	}
@@ -98,11 +100,33 @@ foreach ($list as $entry) {
 	echo '</td>
 </tr>';
 };
+
+/**
+ * convertit en b64 sans les egals a la fin
+ *
+ *	@param string $txt	texte a convertir
+ *
+ *	@return string
+ */
+function b64( $txt ) {
+	return str_replace('=', '', base64_encode($txt));
+}
 ?>
 </table><img src="./runcat2.gif" style="visibility:hidden;">
 </div>
 
 <script>
+/**
+ * convertit en b64 sans les egals a la fin
+ *
+ *	@param string $txt	texte a convertir
+ *
+ *	@return string
+ */
+function b64( txt ) {
+	return btoa(txt).replaceAll('=', '');
+}
+
 /**
  * envoie une requete AJAX pour recuperer le mdp, ou le masque si deja affiché
  *
@@ -155,7 +179,7 @@ function getMdp( elem ) {
 function setMdp() {
     var modalBodyId = MotdePasseModal.querySelector('.modal-body #floatingInput')
     var modalBodyPw = MotdePasseModal.querySelector('.modal-body #floatingPass')
-	var btn_pwd = document.getElementById('pwd_' + modalBodyId.value);
+	var btn_pwd = document.getElementById('pwd_' + b64(modalBodyId.value));
 	//check si le mdp n'est pas vide
 	if ((modalBodyPw.value.length >= 5) && (!btn_pwd.disabled)) {
 		// affiche un spinner
@@ -218,7 +242,7 @@ MotdePasseModal.addEventListener('show.bs.modal', function (event) {
   var modalBodyId = MotdePasseModal.querySelector('.modal-body #floatingInput')
   var modalBodyPw = MotdePasseModal.querySelector('.modal-body #floatingPass')
 
-  modalTitle.textContent = 'Réinitialise ' + NomComplet
+  modalTitle.textContent = 'Réinitialise ' + atob(NomComplet)
   modalBodyId.value = atob(Identifiant)
   modalBodyPw.value = ''
 })
