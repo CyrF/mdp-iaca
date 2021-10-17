@@ -21,7 +21,7 @@
 session_start();
 
 require("inc/config.php");
-include("inc/adldap.class.php");
+include("inc/{$_CONF['mode']}ldap.class.php");
 
 $pageid = 'dashboard';
 $expired = false;
@@ -49,7 +49,7 @@ if ( ! empty( $_GET ) ) {
 	if ( isset( $_GET['logout'] )) {	// deconnecte l'utilisateur
 		session_unset();
 		session_destroy();
-		header("Location: index.php?sessionexpired");
+		header("Location: index.php");
 	}
 	if ( isset( $_GET['pg'] )) {	// extrait la page demandée
 		$pageid = htmlspecialchars($_GET['pg']);
@@ -89,10 +89,12 @@ $ldap = new AnnuaireLDAP( $_CONF['AD_ServerIP'], "{$_CONF['AD_Domain']}\\{$_SESS
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<?php if (!isset( $_GET['nobootstrap'] )) { ?>
     <!-- Bootstrap core CSS -->
 <link href="https://getbootstrap.com/docs/5.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-	<link href="./inc/style-base.css" rel="stylesheet" type="text/css">
+	<link href="./inc/style-base.css" rel="stylesheet" type="text/css">	
+	<?php } // si nobootstrap ?>
 	<title>Mot de passe IACA</title>
 </head>
 <?php
@@ -102,15 +104,27 @@ if ( isset( $_SESSION['user_id'] ) && ! empty( $_SESSION['user_id'] ) ) {
 ?>
 <body>
 
-<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+<?php if ( $pageid != 'etiquettes' ) { // pas de navbar sur la page etiquettes ?>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4 d-print-none">
   <div class="container-fluid">
-    <a class=" navbar-brand" href="."> <img src="./pass-blk.jpg" width="33" height="24">&nbsp;Consultation des comptes Iaca </a>
-	<form> <input type="text" class="form-control" id="floatingsearch" placeholder="Rechercher..." name="q">
-	<input type="hidden" id="floatingsearch" value="cherche" name="pg">
-</form> 
+    <span>
+		<a class=" navbar-brand" href=".">
+			<img src="pass-blk.jpg" width="33" height="24">
+			&nbsp;Comptes Iaca
+		</a>
+		<a class="btn btn-outline-success" href=".">Liste des Classes</a>
+
+	</span>
+	<form>
+		<input type="text" class="form-control" id="floatingsearch" placeholder="Rechercher un élève..." name="q">
+		<input type="hidden" id="floatingsearch" value="cherche" name="pg">
+	</form> 
     <a class="btn btn-outline-success" href="?logout">Déconnexion <?php echo $_SESSION['user_name']; ?></a>
     </div>
 </nav>
+
+<?php } // si pageid not etiquettes ?>
+
 		<div id="contenu">
 <?php
 if ( file_exists("inc/page_". $pageid .".php") ) {

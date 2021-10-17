@@ -48,6 +48,9 @@ if ( isset( $_SESSION['user_id'] ) && ! empty( $_SESSION['user_id'] ) ) {
 			// on recoit les infos encodées en base64
 			$utilisateur =	base64_decode( htmlspecialchars($_GET['get']));
 			
+			// attends quelques millisecondes en cas de nombreuses demandes simultanées
+			time_nanosleep(0, rand(1000,1000000));
+			
 			// demande un mdp a iaca 
 			echo iaca_getmdp( $utilisateur );
 		}
@@ -67,6 +70,7 @@ if ( isset( $_SESSION['user_id'] ) && ! empty( $_SESSION['user_id'] ) ) {
  */
 function iaca_setmdp($utilisateur, $mdp) {
 	global $_CONF;
+	if( $_CONF['mode'] == 'fake' ) { return 'OK'; }
 	$REPONSE="";
 	$fp=fsockopen($_CONF['AD_ServerIP'],5016,$numerr,$strerr,1);
 	if ($fp) {
@@ -112,6 +116,7 @@ function iaca_hidemdp($utilisateur) {
  */
 function iaca_getmdp($utilisateur) {
 	global $_CONF;
+	if( $_CONF['mode'] == 'fake' ) { return Creer_Pass( 8 ); }
 	$REPONSE="";
 	//$utilisateur = substr($utilisateur, 4);
 	$fp=fsockopen($_CONF['AD_ServerIP'],5016,$numerr,$strerr,1);
@@ -122,4 +127,15 @@ function iaca_getmdp($utilisateur) {
 	fclose($fp);
 	// supprime l'entete recue pour retourner que le mdp
 	return trim(substr($REPONSE, strlen($utilisateur) + 11));
+}
+
+/**
+ * Cree un mot de passe aleatoire
+ *
+ *	@param int $n		longueur du mot de passe
+ *
+ *	@return string
+ */
+function Creer_Pass( $n=5 ) {
+	return substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',$n)),0,$n);
 }
