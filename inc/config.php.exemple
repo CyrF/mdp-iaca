@@ -22,6 +22,7 @@
 /**
  * Variables pour configurer l'application
  *
+ *	@param str 'mode'			choix entre 'ad' pour interroger l'active directory ou 'fake' pour test.
  *	@param int 'idletime'		Duree en secondes avant deconnexion automatique
  *	@param str 'AD_ServerIP'	Ip du serveur IACA et controleur du domaine
  *	@param str 'AD_Domain'		nom DNS du domaine (utilisé pour se connecter ex: domaine\prof)
@@ -33,7 +34,8 @@
  *
  */ 
  
-$_CONF = array (			
+$_CONF = array (
+	'mode'				=> 'ad',
 	'idletime'			=> 5*60,
 	'AD_ServerIP'		=> '10.100.00.65',
 	'AD_Domain'			=> 'Contoso',

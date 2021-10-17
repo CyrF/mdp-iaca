@@ -52,12 +52,14 @@ class AnnuaireLDAP {
 	/**
 	 * Retourne les utilisateurs
 	 *
+	 *	@param string $uid		identifiant de l'utilisateur
+	 *
 	 *	@return array
 	 */
 	function get_users_info($uid='*'){
 		if ($uid == "prof") {
 			return array(
-				'cn' => "Hilaire Prof",
+				'cn' => "Hilaire PROF",
 				'uid' => "prof");
 		}
 	}
@@ -69,91 +71,122 @@ class AnnuaireLDAP {
 	 *	@return array
 	 */
 	function get_classes(){
-		return array('Justice League', 'Gotham City', 'Metropolis', 'Themyscira', 'Sector 666', 'Atlantis');
+		return array(
+			'Justice League', 'Gotham City', 'Metropolis', 'Themyscira', 
+			'Sector 666', 'Atlantis', 'Asgard', 'Manhattan', 'Avengers', 
+			'Wakanda', "Hell's Kitchen", 'Guardians of the Galaxy'
+		);
 	}
 	
 	/**
-	 * Retourne les groupes associés a un utilisateur
+	 * Cree un login credible a partir du nom
+	 *
+	 *	@param string $nom		nom complet de l'utilisateur, au format "DOE John Jane"
+	 *	@param bool $long		format "john.doe42" si vrai, sinon "doej2"
+	 *
+	 *	@return string
+	 */
+	private function Creer_Login( $nom, $long = false) {
+		$n = explode(' ', $nom, 3);
+		if ($long) {
+			//format elyco
+			return strtolower( $n[1] . '.' . $n[0] ) . rand(0,9999);
+		} else {
+			//format iaca
+			$nom = str_replace('_', '-', substr($n[0], 0, 11));
+			return strtolower( $nom . substr($n[1], 0, 1) ) . rand(0,10);
+		}
+	}
+	
+	/**
+	 * Cree un mot de passe aleatoire
+	 *
+	 *	@param int $n		longueur du mot de passe
+	 *
+	 *	@return string
+	 */
+	private function Creer_Pass( $n=5 ) {
+		return substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',$n)),0,$n);
+	}
+	
+	/**
+	 * Cree un utilisateur aleatoire, au format "DOE John Jane"
+	 *
+	 *	@return string
+	 */
+	private function Creer_NomAleatoire() {
+		$prenom = array( 
+			array(
+				'Arthur', 'Bruce', 'Victor', 'John', 'Yondu', 'Alfred',
+				'Ray', 'Oliver', 'Billy', 'Stephen', 'Kal', "T'Challa", 
+				'Tony', 'Henry',  'Steve',  'Thor', 'Peter', 'Hal', 
+			), array(
+				'Dinah', 'Ivy', 'Lois', 'Diana', 'Barbara', 'Maria', 
+				'Kara', 'Harleen', 'Cassandra', 'Janet', 'Wanda', 
+				'Carol', 'Natasha', 'Gamora',
+			)
+		);
+		$famille = array(
+			'Curry', 'Wayne', 'Drake', 'Stone', 'Jordan', 'Stewart', 'Lane',
+			'Allen', "Zor'El", 'Prince', 'Pennyworth', 'Quinzel', 'Odinson',
+			'Gordon', 'Queen', 'Palmer', 'Batson', 'Strange', 'Cain', 'El',
+			'Stark', 'Jonzz', 'Van_Dyne', 'Banner', 'Rogers', 'Danvers',
+			'Maximoff', 'Romanoff', 'Parker', 'de_Guadalupe_Santiago', 'Pym' 
+		);
+
+		$nom  = strtoupper( $famille[rand( 0 , count($famille) -1 )] ) . ' ';
+		$genre = rand(0,1);
+		$nom .= $prenom[$genre][rand( 0 , count($prenom[$genre]) -1 )] . ' ';
+		$nom .= $prenom[$genre][rand( 0 , count($prenom[$genre]) -1 )] . ' ';
+		$nom .= $prenom[$genre][rand( 0 , count($prenom[$genre]) -1 )];
+
+
+		return $nom;
+	}
+	
+	/**
+	 * Retourne les utilisateurs dans a une classe
 	 *
 	 *	@param string $grp	nom du groupe classe
 	 *
 	 *	@return array
 	 */
-	function get_usergroups($grp='*', $description=false, $cn='*'){
-		switch($grp) {
-			case 'Justice League':
-				return array(
-					array('NomComplet' => 'Arthur Curry', 'Identifiant' => 'aqua', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'Bruce Wayne', 'Identifiant' => 'batman', 'logoncount' => 0), 
-					array('NomComplet' => 'Dinah Drake', 'Identifiant' => 'canary', 'logoncount' => rand(0,10)),
-					array('NomComplet' => 'Victor Stone', 'Identifiant' => 'cyborg', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'Hal Jordan', 'Identifiant' => 'green', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'John Stewart', 'Identifiant' => 'green2', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'Barry Allen', 'Identifiant' => 'flash', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'John Jonzz', 'Identifiant' => 'martian', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'Kal-El', 'Identifiant' => 'superman', 'logoncount' => rand(0,10)),  
-					array('NomComplet' => 'Lois Lane', 'Identifiant' => 'lois', 'logoncount' => rand(0,10)),  
-					array('NomComplet' => 'Kara-Zor-El', 'Identifiant' => 'supergirl', 'logoncount' => rand(0,10)),  
-					array('NomComplet' => 'Diana Prince', 'Identifiant' => 'wonder', 'logoncount' => rand(0,10)),
-					array('NomComplet' => 'Alfred Pennyworth', 'Identifiant' => 'alfred', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'Barbara Gordon', 'Identifiant' => 'oracle', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'Roy Harper', 'Identifiant' => 'arsenal', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'Oliver Queen', 'Identifiant' => 'greenarrow', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'Ray Palmer', 'Identifiant' => 'atom', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'Billy Batson', 'Identifiant' => 'shazam', 'logoncount' => rand(0,10)));
-				break;
-			case 'Gotham City':
-				return array(
-					array('NomComplet' => 'Dinah Drake', 'Identifiant' => 'canary', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'Bruce Wayne', 'Identifiant' => 'batman', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'Alfred Pennyworth', 'Identifiant' => 'alfred', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'Barbara Gordon', 'Identifiant' => 'oracle', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'Roman Sionis', 'Identifiant' => 'blask', 'logoncount' => rand(0,10)));
-				break;
-			case 'Metropolis':
-				return array(
-					array('NomComplet' => 'Kal-El', 'Identifiant' => 'superman', 'logoncount' => rand(0,10)));
-				break;
-			case 'Themyscira':
-				return array( 
-					array('NomComplet' => 'Diana Prince', 'Identifiant' => 'wonder', 'logoncount' => rand(0,10)));
-				break;
-			case 'Sector 666':
-				return array(
-					array('NomComplet' => 'Hal Jordan', 'Identifiant' => 'green', 'logoncount' => rand(0,10)), 
-					array('NomComplet' => 'Atrocitus', 'Identifiant' => 'red', 'logoncount' => rand(0,10)));
-				break;
-			case 'Atlantis':
-				return array( 
-					array('NomComplet' => 'Arthur Curry', 'Identifiant' => 'aqua', 'logoncount' => rand(0,10)));
-				break;
-			default:
-				return array('Justice League', 'Gotham City', 'Metropolis', 'Themyscira', 'Sector 666', 'Atlantis');
+	function get_usergroups( $grp ) {
+		$list = array();
+		for($i=0; $i<rand(1,35); $i++){
+			$nom = $this->Creer_NomAleatoire();
+			$id = $this->Creer_Login( $nom );
+			array_push($list, array(
+				'NomComplet' => str_replace('_', ' ', $nom), 
+				'Identifiant' => $id, 
+				'Compte365' => $id . '@pdtor.dS3iose.a645caan5i4ule0ley',
+				'logoncount' => rand(0,10),
+				'Classe' => $grp,
+				'Id_ent' => $this->Creer_Login( $nom , true), 
+				'Pw_ent' => $this->Creer_Pass(), 
+				)); 
 		}
-		/*/////
-		$this->connecter();
-		if ($uid == '*') {
-			$filtre = "(&(objectClass=posixGroup)(cn=" . ldap_escape($cn, '*', LDAP_ESCAPE_FILTER) . "))";
-		} else {
-			$filtre = "(&(objectClass=posixGroup)(memberUid=" . ldap_escape($uid, '*', LDAP_ESCAPE_FILTER) . "))";
-		}
-		$cherche = ldap_search($this->ds, $this->ldap_uo['group'], $filtre);
-		$info = ldap_get_entries($this->ds, $cherche);
-		$resultat = array();
-
-		for ($i=0; $i<$info["count"]; $i++) {
-			if ($info[$i]["description"][0] != "private") {
-				if ($description) {
-					$resultat[] = array(
-						'description' => $info[$i]["description"][0],
-						'cn' => $info[$i]["cn"][0],
-						'gidnumber' => $info[$i]["gidnumber"][0],
-						'memberuid' => $info[$i]["memberuid"]);
-				} else {
-					$resultat[] = $info[$i]["cn"][0];
-				}
+		sort($list);
+		return $list;
+	}
+	
+	
+	/**
+	 * Recherche un ou des utilisateurs
+	 *
+	 *	@param string $cherche	utilisateur a rechercher
+	 *
+	 *	@return array
+	 */
+	function find_users($cherche) {
+		$users = $this->get_usergroups( "foobar" );
+		$list = array();
+		foreach( $users as $u ) {
+			if( stristr( $u['NomComplet'], $cherche ) != false ) {
+				array_push( $list, $u );
 			}
 		}
-*/
+		return $list;
 	}
+	
 }
