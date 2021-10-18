@@ -35,7 +35,7 @@ foreach ($list as $entry) {
 		<span class="condensed desc short">Identifiant réseau : </span>
 		<?php echo strtolower( $entry['Identifiant'] ); ?>
 	</div>
-	<div class="nom" style="letter-spacing: -0.015em;">
+	<div class="nom" style="letter-spacing: -0.065em;">
 		<span class="condensed desc">Sur le portable #MonOrdiAuLycee et l'accès à office.com, utilisez<br></span>
 		<?php echo $entry['Compte365']; ?>
 	</div>
