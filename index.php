@@ -116,10 +116,10 @@ if ( isset( $_SESSION['user_id'] ) && ! empty( $_SESSION['user_id'] ) ) {
 
 	</span>
 	<form>
-		<input type="text" class="form-control" id="floatingsearch" placeholder="Rechercher un élève..." name="q">
+		<input type="text" class="form-control" id="floatingsearch" placeholder="🔎 Rechercher un élève..." name="q">
 		<input type="hidden" id="floatingsearch" value="cherche" name="pg">
 	</form> 
-    <a class="btn btn-outline-success" href="?logout">Déconnexion <?php echo $_SESSION['user_name']; ?></a>
+    <a class="btn btn-outline-success" href="?logout"><?php echo $_SESSION['user_name']; ?> ❌</a>
     </div>
 </nav>
 

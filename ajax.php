@@ -20,6 +20,7 @@
  
 session_start();
 require("inc/config.php");
+include("inc/{$_CONF['mode']}ldap.class.php");
 
 
 // si un utilisateur est connecté
@@ -35,8 +36,13 @@ if ( isset( $_SESSION['user_id'] ) && ! empty( $_SESSION['user_id'] ) ) {
 			$utilisateur =	base64_decode(htmlspecialchars($_GET['uid']));
 			$mdp =			base64_decode(htmlspecialchars($_GET['set']));
 			
+			$result = '';
 			$result = "SET=". iaca_setmdp($utilisateur, $mdp);	// demande a iaca de changer le mdp
-		//	$result .= " HIDE=". iaca_hidemdp($utilisateur);	// marche pas pour l'instant
+		//	$result .= " HIDE=". iaca_hidemdp($utilisateur);	// plus besoin avec la derniere version.
+			
+			// Apparemment, il faut appliquer 2 fois pour que ca soit pris en compte.		
+			ldap_mdptemporaire($utilisateur);
+			ldap_mdptemporaire($utilisateur);
 		
 			if ($result == "SET=OK HIDE=OK" or $result == "SET=OK") {
 				echo "OK";
@@ -97,7 +103,7 @@ function iaca_hidemdp($utilisateur) {
 	$REPONSE="";		
 	$fp=stream_socket_client("tcp://{$_CONF['AD_ServerIP']}:5016",$numerr,$strerr,1);
 	if ($fp) {		
-		fwrite($fp,"NU=$utilisateur|MDP=**************\r\n");
+		fwrite($fp,"NU=$utilisateur|MDP=**************");
 		stream_set_timeout($fp, 2);
 		$REPONSE=stream_get_contents($fp);
 	}
@@ -139,3 +145,22 @@ function iaca_getmdp($utilisateur) {
 function Creer_Pass( $n=5 ) {
 	return substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',$n)),0,$n);
 }
+
+/**
+ * Force un utilisateur à modifier son mot de passe à la prochaine ouverture de session
+ *
+ *	@param string $utilisateur	nom d'utilisateur dans l'AD
+ *
+ *	@return null
+ */
+ function ldap_mdptemporaire($utilisateur) {
+	global $_CONF;	 
+	if( $_CONF['mode'] == 'fake' ) { return; }
+	$ldap = new AnnuaireLDAP( 
+		$_CONF['AD_ServerIP'], 
+		"{$_CONF['AD_Domain']}\\{$_CONF['AD_UserGest']}", 
+		$_CONF['AD_PassGest'], 
+		$_CONF['AD_OU_ELEVES'] );
+	$ldap->set_UserMustChangePassword($utilisateur);
+ }
+ 
