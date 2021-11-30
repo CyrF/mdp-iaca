@@ -133,7 +133,7 @@ class AnnuaireLDAP {
 	 */
 	function get_usergroups($classe) {
 		$this->connecter(true);
-		$justthese = array("cn", "displayname", "samaccountname", "userprincipalname", "logoncount");
+		$justthese = array("cn", "displayname", "samaccountname", "userprincipalname", "logoncount", "pwdLastSet");
 		$resultat = array();
 		
 		// liste les eleves dans une uo
@@ -155,6 +155,7 @@ class AnnuaireLDAP {
 				'NomComplet' => $info[$i]["displayname"][0],
 				'Identifiant' => $info[$i]["samaccountname"][0],
 				'Compte365' => $info[$i]["userprincipalname"][0],
+				'pwdLastSet' => $info[$i]["pwdlastset"][0],
 				'logoncount' => $logoncount);
 		}
 		sort($resultat);
@@ -171,7 +172,7 @@ class AnnuaireLDAP {
 	 */
 	function find_users($cherche) {
 		$this->connecter(true);
-		$justthese = array("cn", "displayname", "samaccountname", "userprincipalname", "logoncount", "distinguishedname");
+		$justthese = array("cn", "displayname", "samaccountname", "userprincipalname", "logoncount", "distinguishedname", "pwdLastSet");
 		$resultat = array();
 		
 		if ($cherche == '') {
@@ -200,6 +201,7 @@ class AnnuaireLDAP {
 				'NomComplet' => $info[$i]["displayname"][0],
 				'Classe' => $classe,
 				'Identifiant' => $info[$i]["samaccountname"][0],
+				'pwdLastSet' => $info[$i]["pwdlastset"][0],
 				'logoncount' => $logoncount);
 		}
 		sort($resultat);
@@ -233,4 +235,32 @@ class AnnuaireLDAP {
 		sort($resultat);
 		return $resultat;
 	}
+	
+	/**
+	 * Force un utilisateur à modifier son mot de passe à la prochaine ouverture de session
+	 *
+	 *	@param string $uid	identifiant de l'utilisateur
+	 *
+	 *	@return null
+	 */
+	function set_UserMustChangePassword($uid) {
+		global $_CONF;
+		$this->connecter(true);
+		
+		// cherche le chemin ldap correspondant a l'uid
+		$res = ldap_search($this->ds, $_CONF['AD_Chemin'], "(sAMAccountName=". ldap_escape($uid, '', LDAP_ESCAPE_DN).")");
+		$dn = ldap_first_entry($this->ds, $res);
+		
+		// définis l’attribut pwdLastSet sur zéro
+		$attribut = array();
+		$attribut["pwdLastSet"][0] = 0;
+		
+		$result = ldap_modify($this->ds, ldap_get_dn($this->ds, $dn), $attribut);
+//		var_dump($result);
+	//	$result = ldap_get_attributes($this->ds, $dn);
+		ldap_close($this->ds);
+		
+	//	var_dump($result["pwdLastSet"]);
+	}
+	
 }

@@ -35,6 +35,7 @@ $cherche = $_GET['q'];
 			value="Ha, ha, ha..." disabled readonly>
 		<label for="floatingInput">Identifiant</label>
 	   </div>
+	   <br />
 	   <div class="form-floating">
         <input  onfocus="generate_pwd(this, 6);" 
 			type="text" class="form-control" 
@@ -44,6 +45,14 @@ $cherche = $_GET['q'];
 Minuscules, majuscules et chiffres autorisés.
 Plus les caractères spéciaux ~!@#$%&*_-+|\(){}[]:;<>,.?/">
 		<label for="floatingPass">Nouveau mot de passe</label>
+		<div class="form-check form-switch">
+		  <input type="checkbox" class="form-check-input" id="pwdonetime" checked disabled>
+		  <label class="form-check-label" for="pwdonetime">Devra être changé à la prochaine ouverture de session.</label>
+		</div>
+		<div class="form-check form-switch">
+		  <input type="checkbox" class="form-check-input" id="pwdhidden" checked disabled>
+		  <label class="form-check-label" for="pwdhidden">N'est pas stocké en clair sur le serveur</label>
+		</div>
 	   </div>
       </div>
       <div class="modal-footer">
@@ -62,7 +71,7 @@ Plus les caractères spéciaux ~!@#$%&*_-+|\(){}[]:;<>,.?/">
 <thead class="table-dark">
 <tr>
 	<th></th>
-	<th>Classe</th>
+	<th style="text-align:center;">Classe</th>
 	<th>Identifiant IACA</th>
 	<th>Mot de passe</th>
 </tr>
@@ -73,10 +82,13 @@ $list = $ldap->find_users( $cherche );
 sort($list);
 foreach ($list as $entry) {
 	$b64_uid = b64($entry['Identifiant']);
-	$b64_name = b64($entry['NomComplet']);
+	$b64_name = b64(rawurlencode($entry['NomComplet']));
 	echo '<tr>
 	<td>' . $entry['NomComplet'] .'</td>
-	<td>' . $entry['Classe'] .'</td>
+	<td style="text-align:center;">
+	  <a href="?pg=classe&id='. b64($entry['Classe']) .'" 
+	    class="btn btn-outline-success" 
+	    style=width:100%;>' . $entry['Classe'] .'</a></td>
 	<td>' . $entry['Identifiant'] .'</td>
 	<td>';
 	if ($entry['logoncount'] == 0) {
@@ -85,7 +97,7 @@ foreach ($list as $entry) {
 				id='pwd_{$b64_uid}' onclick='getMdp(this.id);'
 				data-bs-target='#MotdePasseModal' name='motdepasse'
 				data-bs-uid='{$b64_uid}' data-bs-name='{$b64_name}'>
-					Le compte n'a pas été utilisé : voir le mdp provisoire
+					Le compte n'a pas été utilisé : voir le mdp
 			</span>";
 	} else {
 		// le compte a servi, donc le mdp a été personnalisé
@@ -94,6 +106,11 @@ foreach ($list as $entry) {
 				data-bs-toggle='modal' data-bs-target='#MotdePasseModal' 
 				data-bs-uid='{$b64_uid}' data-bs-name='{$b64_name}'>
 					Réinitialiser avec un nouveau mot de passe
+			</span>";
+	}
+	if ($entry['pwdLastSet'] == 0) {
+		echo "&nbsp;<span type='button' class='btn btn-outline-secondary btn-sm d-print-none disabled'>
+					Temporaire
 			</span>";
 	}
 	
@@ -194,7 +211,8 @@ function setMdp() {
 				if (text == 'OK') {
 					// affichage
 					btn_pwd.disabled = false
-					btn_pwd.innerHTML = modalBodyPw.value;	
+					btn_pwd.innerHTML = modalBodyPw.value;
+					btn_pwd.innerHTML += '&nbsp;<span type="button" class="btn btn-outline-secondary btn-sm d-print-none">Temporaire, Cliquez pour masquer</span>';
 					btn_pwd.setAttribute('enclair', true);
 				} else if (text == "Votre session a expirée.") {
 					window.location.replace("?sessionexpired");
@@ -242,7 +260,7 @@ MotdePasseModal.addEventListener('show.bs.modal', function (event) {
   var modalBodyId = MotdePasseModal.querySelector('.modal-body #floatingInput')
   var modalBodyPw = MotdePasseModal.querySelector('.modal-body #floatingPass')
 
-  modalTitle.textContent = 'Réinitialise ' + atob(NomComplet)
+  modalTitle.textContent = 'Réinitialise ' + decodeURIComponent(window.atob( NomComplet ))
   modalBodyId.value = atob(Identifiant)
   modalBodyPw.value = ''
 })

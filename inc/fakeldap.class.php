@@ -72,9 +72,9 @@ class AnnuaireLDAP {
 	 */
 	function get_classes(){
 		return array(
-			'Justice League', 'Gotham City', 'Metropolis', 'Themyscira', 
-			'Sector 666', 'Atlantis', 'Asgard', 'Manhattan', 'Avengers', 
-			'Wakanda', "Hell's Kitchen", 'Guardians of the Galaxy'
+			'Justice League', '_1Gotham City', '2Metropolis', 'Themyscira', 
+			'TSector 666', '1Atlantis', '_2Asgard', 'TManhattan', '_TAvengers', 
+			'1Wakanda', "2Hell's Kitchen", 'Guardians of the Galaxy'
 		);
 	}
 	
@@ -123,7 +123,7 @@ class AnnuaireLDAP {
 			), array(
 				'Dinah', 'Ivy', 'Lois', 'Diana', 'Barbara', 'Maria', 
 				'Kara', 'Harleen', 'Cassandra', 'Janet', 'Wanda', 
-				'Carol', 'Natasha', 'Gamora',
+				'Carol', 'Natasha', 'Gamora', 'Mötley'
 			)
 		);
 		$famille = array(
@@ -131,7 +131,8 @@ class AnnuaireLDAP {
 			'Allen', "Zor'El", 'Prince', 'Pennyworth', 'Quinzel', 'Odinson',
 			'Gordon', 'Queen', 'Palmer', 'Batson', 'Strange', 'Cain', 'El',
 			'Stark', 'Jonzz', 'Van_Dyne', 'Banner', 'Rogers', 'Danvers',
-			'Maximoff', 'Romanoff', 'Parker', 'de_Guadalupe_Santiago', 'Pym' 
+			'Maximoff', 'Romanoff', 'Parker', 'de_Guadalupe_Santiago', 'Pym',
+			'Blue Öyster', 'Mötorhead', 'Crüe', 'Queensrÿche', 'Zerø'
 		);
 
 		$nom  = strtoupper( $famille[rand( 0 , count($famille) -1 )] ) . ' ';
@@ -161,6 +162,7 @@ class AnnuaireLDAP {
 				'Identifiant' => $id, 
 				'Compte365' => $id . '@pdtor.dS3iose.a645caan5i4ule0ley',
 				'logoncount' => rand(0,10),
+				'pwdLastSet' => rand(0,10),
 				'Classe' => $grp,
 				'Id_ent' => $this->Creer_Login( $nom , true), 
 				'Pw_ent' => $this->Creer_Pass(), 

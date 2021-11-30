@@ -21,16 +21,43 @@
 ?>
 <div class="container">
 	<h3>Sélectionner la classe :</h3>
-<table>
+<table style="margin:auto;">
 
 
 <?php
 $list = $ldap->get_classes();
 
-sort($list);
+$secd = array();
+$prem = array();
+$term = array();
+$autr = array();
+
 foreach ($list as $entry) {
-	echo '	<tr><td><a class="btn btn-outline-success" style="width:100%" href="?pg=classe&id=' . base64_encode($entry) . '" />'. $entry .'</td></tr>';
+	// certaines classes sont nommées _1FOOBAR
+	$section = ($entry[0] == '_')? $entry[1] : $entry[0];
+	
+	// rempli les array correspondants
+	switch ($section) {
+		case "1": 
+			$prem[] = '<a class="btn btn-outline-success" style="width:100%;margin:2px auto;" href="?pg=classe&id=' . base64_encode($entry) . '" />'. $entry .'</a>';
+			break;
+		case "2": 
+			$secd[] = '<a class="btn btn-outline-success" style="width:100%;margin:2px auto;" href="?pg=classe&id=' . base64_encode($entry) . '" />'. $entry .'</a>';
+			break;
+		case "T": 
+			$term[] = '<a class="btn btn-outline-success" style="width:100%;margin:2px auto;" href="?pg=classe&id=' . base64_encode($entry) . '" />'. $entry .'</a>';
+			break;
+		default:  	
+			$autr[] = '<a class="btn btn-outline-success" style="width:100%;margin:2px auto;" href="?pg=classe&id=' . base64_encode($entry) . '" />'. $entry .'</a>';
+			break;
+	} 
 }
+echo '<tr>';
+echo '	<td style="vertical-align: top;padding: 0 20px;">'. implode('<br />', $secd) .'</td>';
+echo '	<td style="vertical-align: top;padding: 0 20px;">'. implode('<br />', $prem) .'</td>';
+echo '	<td style="vertical-align: top;padding: 0 20px;">'. implode('<br />', $term) .'</td>';
+echo '	<td style="vertical-align: top;padding: 0 20px;">'. implode('<br />', $autr) .'</td>';
+echo '</tr>';
 ?>
 </table>
 </div>

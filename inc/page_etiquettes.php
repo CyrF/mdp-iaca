@@ -21,13 +21,14 @@
 $classe = base64_decode($_GET['id']);
 $list = $ldap->get_usergroups( $classe );
 
-echo "<h3 class='d-print-none'>Attendez que tous les petits chats récupère les mots de passe avant de lancer l'impression...</h3>";
+echo "<h3 class='d-print-none'>Attendez que tous les petits chats récupère les mots de passe avant de lancer l'impression...<br>
+Pour masquer certaines vignettes, cliquez dessus.</h3>";
 
 foreach ($list as $entry) {
 	$b64_uid = b64($entry['Identifiant']);
 	?>
 	
-<div class="vignet">
+<div class="vignet" onclick="this.style.display = 'none';">
 	<div class="vignet-classe"><?php echo $classe; ?></div>
 	<div class="nom condensed"><?php echo $entry['NomComplet']; ?></div>
 	
