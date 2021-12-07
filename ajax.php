@@ -17,10 +17,11 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
- 
+
 session_start();
 require("inc/config.php");
 include("inc/{$_CONF['mode']}ldap.class.php");
+include("inc/func_ElephantBleu.php");
 
 
 // si un utilisateur est connecté
@@ -30,137 +31,41 @@ if ( isset( $_SESSION['user_id'] ) && ! empty( $_SESSION['user_id'] ) ) {
 		session_destroy();
 		session_unset();
 		echo "Votre session a expirée.";
-	} else {		
-		if ( isset( $_GET['set'] )) {
+	} else {
+		// les donnees sont en json, curieusement $_POST est vide ?
+		$jsonData = file_get_contents("php://input");
+		$data = json_decode($jsonData, true);
+
+		if ( isset( $data['set'] )) {
 			// on recoit les infos encodées en base64
-			$utilisateur =	base64_decode(htmlspecialchars($_GET['uid']));
-			$mdp =			base64_decode(htmlspecialchars($_GET['set']));
-			
+			$utilisateur =	base64_decode(htmlspecialchars($data['uid']));
+			$mdp =			base64_decode(htmlspecialchars($data['set']));
 			$result = '';
 			$result = "SET=". iaca_setmdp($utilisateur, $mdp);	// demande a iaca de changer le mdp
 		//	$result .= " HIDE=". iaca_hidemdp($utilisateur);	// plus besoin avec la derniere version.
-			
-			// Apparemment, il faut appliquer 2 fois pour que ca soit pris en compte.		
+
+			// Apparemment, il faut appliquer 2 fois pour que ca soit pris en compte.
 			ldap_mdptemporaire($utilisateur);
 			ldap_mdptemporaire($utilisateur);
-		
+
 			if ($result == "SET=OK HIDE=OK" or $result == "SET=OK") {
 				echo "OK";
 			} else {
 				echo $result;
 			}
 		}
-		if ( isset( $_GET['get'] )) {
+
+		if ( isset( $data['get'] )) {
 			// on recoit les infos encodées en base64
-			$utilisateur =	base64_decode( htmlspecialchars($_GET['get']));
-			
+			$utilisateur =	base64_decode( htmlspecialchars($data['get']));
+
 			// attends quelques millisecondes en cas de nombreuses demandes simultanées
 			time_nanosleep(0, rand(1000,1000000));
-			
-			// demande un mdp a iaca 
+
+			// demande un mdp a iaca
 			echo iaca_getmdp( $utilisateur );
 		}
 	}
 } else {
 	echo "Votre session a expirée.";
 }
-
-
-/**
- * demande a iaca de changer le mdp
- *
- *	@param string $utilisateur	nom d'utilisateur dans l'AD
- *	@param string $mdp			nouveau mdp a changer
- *
- *	@return string				"OK" | "Erreur"
- */
-function iaca_setmdp($utilisateur, $mdp) {
-	global $_CONF;
-	if( $_CONF['mode'] == 'fake' ) { return 'OK'; }
-	$REPONSE="";
-	$fp=fsockopen($_CONF['AD_ServerIP'],5016,$numerr,$strerr,1);
-	if ($fp) {
-		fputs($fp,"NU=$utilisateur|MDP=$mdp");
-		$REPONSE=fgets($fp,1500);
-	}
-	fclose($fp);
-	if (strchr($REPONSE, "MDP_OK")) {
-		return "OK";
-	} else {
-		return "Une erreur est survenue. ($REPONSE)";
-	}
-}
-
-/**
- * demande a iaca de masquer le mdp
- *
- *	@param string $utilisateur	nom d'utilisateur dans l'AD
- *
- *	@return string				"OK" | "Erreur"
- */
-function iaca_hidemdp($utilisateur) {
-	global $_CONF;
-	$REPONSE="";		
-	$fp=stream_socket_client("tcp://{$_CONF['AD_ServerIP']}:5016",$numerr,$strerr,1);
-	if ($fp) {		
-		fwrite($fp,"NU=$utilisateur|MDP=**************");
-		stream_set_timeout($fp, 2);
-		$REPONSE=stream_get_contents($fp);
-	}
-	fclose($fp);
-	if (strchr($REPONSE, "MDP_OK")) {
-		return "OK";
-	}
-}
-
-/**
- * demande un mdp a iaca 
- *
- *	@param string $utilisateur	nom d'utilisateur dans l'AD
- *
- *	@return string				mot de passe courant | ****
- */
-function iaca_getmdp($utilisateur) {
-	global $_CONF;
-	if( $_CONF['mode'] == 'fake' ) { return Creer_Pass( 8 ); }
-	$REPONSE="";
-	//$utilisateur = substr($utilisateur, 4);
-	$fp=fsockopen($_CONF['AD_ServerIP'],5016,$numerr,$strerr,1);
-	if ($fp) {
-		fputs($fp,"NU=$utilisateur|GETMDP");
-		$REPONSE=fgets($fp,64);
-	}
-	fclose($fp);
-	// supprime l'entete recue pour retourner que le mdp
-	return trim(substr($REPONSE, strlen($utilisateur) + 11));
-}
-
-/**
- * Cree un mot de passe aleatoire
- *
- *	@param int $n		longueur du mot de passe
- *
- *	@return string
- */
-function Creer_Pass( $n=5 ) {
-	return substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',$n)),0,$n);
-}
-
-/**
- * Force un utilisateur à modifier son mot de passe à la prochaine ouverture de session
- *
- *	@param string $utilisateur	nom d'utilisateur dans l'AD
- *
- *	@return null
- */
- function ldap_mdptemporaire($utilisateur) {
-	global $_CONF;	 
-	if( $_CONF['mode'] == 'fake' ) { return; }
-	$ldap = new AnnuaireLDAP( 
-		$_CONF['AD_ServerIP'], 
-		"{$_CONF['AD_Domain']}\\{$_CONF['AD_UserGest']}", 
-		$_CONF['AD_PassGest'], 
-		$_CONF['AD_OU_ELEVES'] );
-	$ldap->set_UserMustChangePassword($utilisateur);
- }
- 

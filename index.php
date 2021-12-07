@@ -22,6 +22,7 @@ session_start();
 
 require("inc/config.php");
 include("inc/{$_CONF['mode']}ldap.class.php");
+include("inc/func_ElephantBleu.php");
 
 $pageid = 'dashboard';
 $expired = false;
@@ -54,7 +55,7 @@ if ( ! empty( $_GET ) ) {
 	if ( isset( $_GET['pg'] )) {	// extrait la page demandée
 		$pageid = htmlspecialchars($_GET['pg']);
 	}
-	if ( isset( $_GET['sessionexpired'] )) {	
+	if ( isset( $_GET['sessionexpired'] )) {
 		$expired = true;
 	}
 }
@@ -69,9 +70,10 @@ if ( ! empty( $_POST ) ) {
 			$_SESSION['user_id'] =$_POST['username'];
 			$_SESSION['user_pass'] =$_POST['password'];
 			$_SESSION['user_name'] = $userinfo['cn'];
+			$_SESSION['Compte365'] = $userinfo['Compte365'];
 			$_SESSION['timestamp'] = time();
     	} else {
-			if (isset( $_SESSION['failed_count'] )) {				
+			if (isset( $_SESSION['failed_count'] )) {
 				$_SESSION['failed_count'] += 1;
 			} else {
 				$_SESSION['failed_count'] = 1;
@@ -91,9 +93,11 @@ $ldap = new AnnuaireLDAP( $_CONF['AD_ServerIP'], "{$_CONF['AD_Domain']}\\{$_SESS
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<?php if (!isset( $_GET['nobootstrap'] )) { ?>
     <!-- Bootstrap core CSS -->
-<link href="https://getbootstrap.com/docs/5.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<link href="dist/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-	<link href="./inc/style-base.css" rel="stylesheet" type="text/css">	
+	<link href="./inc/style-base.css" rel="stylesheet" type="text/css">
+	<script src="inc/func_PetitCafeChaud.js"></script>
+
 	<?php } // si nobootstrap ?>
 	<title>Mot de passe IACA</title>
 </head>
@@ -118,9 +122,22 @@ if ( isset( $_SESSION['user_id'] ) && ! empty( $_SESSION['user_id'] ) ) {
 	<form>
 		<input type="text" class="form-control" id="floatingsearch" placeholder="🔎 Rechercher un élève..." name="q">
 		<input type="hidden" id="floatingsearch" value="cherche" name="pg">
-	</form> 
-    <a class="btn btn-outline-success" href="?logout"><?php echo $_SESSION['user_name']; ?> ❌</a>
-    </div>
+	</form>
+	<div class="dropdown">
+	  <a class="btn btn-secondary dropdown-toggle" href="#"
+		role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
+		<?php echo $_SESSION['user_name']; ?>
+	  </a>
+	  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
+		<?php if (PuisJe( 'AfficherMenuProfilProf' )) { ?>
+		<li><a class="dropdown-item" href="?pg=profil">Changer votre mot de passe</a></li>
+		<?php } ?>
+		<?php if (PuisJe( 'AfficherMenuAide' )) { ?>
+		<li><a class="dropdown-item" href="?pg=aide">Aide</a></li>
+		<?php } ?>
+		<li><a class="dropdown-item" href="?logout">Déconnexion</a></li>
+	  </ul>
+	</div>
 </nav>
 
 <?php } // si pageid not etiquettes ?>
@@ -136,18 +153,18 @@ if ( file_exists("inc/page_". $pageid .".php") ) {
 		</div>
 
 </body>
-	<script src="https://getbootstrap.com/docs/5.0/dist/js/bootstrap.min.js"></script>
+	<script src="dist/bootstrap.min.js"></script>
 </html>
 <?php
 } else { // is connecter
     // affiche la page de connexion
 ?>
   <body class="text-center">
-    
+
 <main class="form-signin">
   <form action="." method="POST">
-    <img class="mb-4" src="./pass.jpg" alt="" width="72" height="57">
-    <h3 class="h4 mb-2 fw-normal">Gestion des mots de passe</h3>
+    <img class="mt-5 mb-3" src="./pass.jpg" alt="" width="72" height="57">
+    <h3 class="h4 mb-3 fw-normal">Gestion des mots de passe</h3>
     <h1 class="h3 mb-3 fw-normal">Identification de l'enseignant</h1>
 <?php
 if ($expired) {
@@ -160,16 +177,16 @@ if ( isset( $_SESSION['failed_count'] ) && $_SESSION['failed_count'] >= 3 ) {
 	echo '<div class="alert alert-danger">Erreur: Nombre de tentatives dépassées.</div>';
 } else {
 		?>
-    <div class="form-floating mb-4">
+    <div class="form-floating mb-3">
       <input type="text" class="form-control" id="floatingInput" placeholder="Identifiant" name="username" required>
       <label for="floatingInput"> Utilisateur (Identifiant de session IACA)</label>
     </div>
-    <div class="form-floating">
+    <div class="form-floating mb-3">
       <input type="password" class="form-control" id="floatingPassword" placeholder="Mot de passe" name="password" required>
       <label for="floatingPassword">Mot de passe</label>
     </div>
     <button class="w-100 btn btn-lg btn-success" type="submit">Connexion</button>
-    <p class="mt-5 mb-3 text-muted">Informatique Mandela &copy; 2021–2185</p>
+    <p class="mt-5 mb-3 text-muted">Informatique Mandela &copy; 2021–2185, version 0.1</p>
 	<?php
 } // else fail count
 ?>

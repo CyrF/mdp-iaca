@@ -12,3 +12,6 @@ Changelog:
 - Ajout de code pour forcer le changement de mot de passe à la prochaine ouverture de session
 - Correction d'un bug d'affichage avec des caractères Unicode
 - Affichage des classes sur 4 colonnes
+- Ajout de la possibilité de masquer certaines classes
+- Remplace les requêtes de type GET par POST
+- Ajout permettant au prof de changer son propre mot de passe
