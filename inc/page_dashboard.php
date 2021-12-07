@@ -21,7 +21,7 @@
 ?>
 <div class="container">
 	<h3>Sélectionner la classe :</h3>
-<table style="margin:auto;">
+<table style="margin:auto;width:88%">
 
 
 <?php
@@ -35,22 +35,22 @@ $autr = array();
 foreach ($list as $entry) {
 	// certaines classes sont nommées _1FOOBAR
 	$section = ($entry[0] == '_')? $entry[1] : $entry[0];
-	
+
 	// rempli les array correspondants
 	switch ($section) {
-		case "1": 
+		case "1":
 			$prem[] = '<a class="btn btn-outline-success" style="width:100%;margin:2px auto;" href="?pg=classe&id=' . base64_encode($entry) . '" />'. $entry .'</a>';
 			break;
-		case "2": 
+		case "2":
 			$secd[] = '<a class="btn btn-outline-success" style="width:100%;margin:2px auto;" href="?pg=classe&id=' . base64_encode($entry) . '" />'. $entry .'</a>';
 			break;
-		case "T": 
+		case "T":
 			$term[] = '<a class="btn btn-outline-success" style="width:100%;margin:2px auto;" href="?pg=classe&id=' . base64_encode($entry) . '" />'. $entry .'</a>';
 			break;
-		default:  	
+		default:
 			$autr[] = '<a class="btn btn-outline-success" style="width:100%;margin:2px auto;" href="?pg=classe&id=' . base64_encode($entry) . '" />'. $entry .'</a>';
 			break;
-	} 
+	}
 }
 echo '<tr>';
 echo '	<td style="vertical-align: top;padding: 0 20px;">'. implode('<br />', $secd) .'</td>';

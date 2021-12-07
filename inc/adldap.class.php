@@ -39,7 +39,7 @@ class AnnuaireLDAP {
 		$this->ds			= false;
 		$this->bound		= false;
 	}
-	
+
 	/**
 	 * Se connecte au serveur LDAP
 	 *
@@ -72,7 +72,7 @@ class AnnuaireLDAP {
 		}
 		return $this->bound;
 	}
-	
+
 	/**
 	 * Tente de s'authentifier avec un compte LDAP
 	 *
@@ -85,7 +85,7 @@ class AnnuaireLDAP {
 		global $_CONF;
 		$this->connecter();
 		$Autorized = false;
-		
+
 		// tente une connection a l'ad...
 			$bind = @ldap_bind($this->ds, "{$_CONF['AD_Domain']}\\". ldap_escape($username, '', LDAP_ESCAPE_DN), $password);
 		if ($bind) {
@@ -93,7 +93,7 @@ class AnnuaireLDAP {
 			$res = ldap_search($this->ds, $_CONF['AD_Chemin'], "(sAMAccountName=". ldap_escape($username, '', LDAP_ESCAPE_DN).")");
 			$first = ldap_first_entry($this->ds, $res);
 			$data = ldap_get_dn($this->ds, $first);
-			
+
 			// compare avec la liste des UO approuvées
 			$listAutorise = explode("|", $_CONF['AD_ou_Autorise']);
 			foreach ($listAutorise as $auth) {
@@ -106,7 +106,7 @@ class AnnuaireLDAP {
 			return false;
 		}
 	}
-		
+
 	/**
 	 * Retourne les utilisateurs
 	 *
@@ -121,6 +121,7 @@ class AnnuaireLDAP {
 		$first = ldap_first_entry($this->ds, $res);
 		return array(
 			'cn' => ldap_get_values($this->ds, $first, "displayname")[0],
+			'Compte365' => ldap_get_values($this->ds, $first, "userprincipalname")[0],
 			'uid' => ldap_get_values($this->ds, $first, "samaccountname")[0]);
 	}
 
@@ -135,19 +136,19 @@ class AnnuaireLDAP {
 		$this->connecter(true);
 		$justthese = array("cn", "displayname", "samaccountname", "userprincipalname", "logoncount", "pwdLastSet");
 		$resultat = array();
-		
+
 		// liste les eleves dans une uo
-		$lsclass = ldap_list($this->ds, 
-			"OU=" . ldap_escape($classe, '*', LDAP_ESCAPE_FILTER). ',' . $this->ldap_ou_elv, 
-			"(&(objectCategory=person)(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))", 
+		$lsclass = ldap_list($this->ds,
+			"OU=" . ldap_escape($classe, '*', LDAP_ESCAPE_FILTER). ',' . $this->ldap_ou_elv,
+			"(&(objectCategory=person)(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))",
 			$justthese);
-			
-		if (!($lsclass)) { 
-			echo "<p>Error:" . ldap_error($this->ds) . "</p>"; 
-			echo "<p>Error:" . ldap_err2str(ldap_errno($this->ds)) . "</p>"; 
+
+		if (!($lsclass)) {
+			echo "<p>Error:" . ldap_error($this->ds) . "</p>";
+			echo "<p>Error:" . ldap_err2str(ldap_errno($this->ds)) . "</p>";
 			die;
 		}
-		
+
 		$info = ldap_get_entries($this->ds, $lsclass);
 		for ($i=0; $i < $info["count"]; $i++) {
 			$logoncount = (isset ($info[$i]["logoncount"]))? $info[$i]["logoncount"][0] : 0;
@@ -161,7 +162,7 @@ class AnnuaireLDAP {
 		sort($resultat);
 		return $resultat;
 	}
-	
+
 
 	/**
 	 * Recherche un ou des utilisateurs
@@ -171,43 +172,49 @@ class AnnuaireLDAP {
 	 *	@return array
 	 */
 	function find_users($cherche) {
+		global $_CONF;
 		$this->connecter(true);
 		$justthese = array("cn", "displayname", "samaccountname", "userprincipalname", "logoncount", "distinguishedname", "pwdLastSet");
 		$resultat = array();
-		
+
 		if ($cherche == '') {
 			// champ recherche vide ?
 			return $resultat;
 		}
-		
+
 		// liste les eleves dans une uo
-		$lsclass = ldap_search($this->ds, 
-			$this->ldap_ou_elv, 
-			"(displayname=*$cherche*)", 
+		$lsclass = ldap_search($this->ds,
+			$this->ldap_ou_elv,
+			"(displayname=*$cherche*)",
 			$justthese);
-			
-		if (!($lsclass)) { 
-    echo "<p>Error:" . ldap_error($this->ds) . "</p>"; 
-    echo "<p>Error:" . ldap_err2str(ldap_errno($this->ds)) . "</p>"; 
-    die;
-} 	
+
+		if (!($lsclass)) {
+			echo "<p>Error:" . ldap_error($this->ds) . "</p>";
+			echo "<p>Error:" . ldap_err2str(ldap_errno($this->ds)) . "</p>";
+			die;
+		}
 		$info = ldap_get_entries($this->ds, $lsclass);
 		for ($i=0; $i < $info["count"]; $i++) {
+			// compteur nombre de connexion
 			$logoncount = (isset ($info[$i]["logoncount"]))? $info[$i]["logoncount"][0] : 0;
+			// extrait la classe de l'utilisateur
 			$classe = str_replace( ',' . $this->ldap_ou_elv, '', $info[$i]["distinguishedname"][0]);
-			
 			$classe = substr($classe, strlen($info[$i]["samaccountname"][0]) + 7);
-			$resultat[] = array(
-				'NomComplet' => $info[$i]["displayname"][0],
-				'Classe' => $classe,
-				'Identifiant' => $info[$i]["samaccountname"][0],
-				'pwdLastSet' => $info[$i]["pwdlastset"][0],
-				'logoncount' => $logoncount);
+
+			// ne retourne pas la classe si elle doit etre masquee
+			if ( !in_array( $classe, $_CONF['AD_Grp_Cache'] )) {
+				$resultat[] = array(
+					'NomComplet' => $info[$i]["displayname"][0],
+					'Classe' => $classe,
+					'Identifiant' => $info[$i]["samaccountname"][0],
+					'pwdLastSet' => $info[$i]["pwdlastset"][0],
+					'logoncount' => $logoncount);
+			}
 		}
 		sort($resultat);
 		return $resultat;
 	}
-	
+
 	/**
 	 * Retourne les classes non vides
 	 *
@@ -215,27 +222,31 @@ class AnnuaireLDAP {
 	 *	@return array
 	 */
 	function get_classes(){
+		global $_CONF;
 		$this->connecter(true);
 		$justthese = array("ou", "cn");
 		$resultat = array();
-		
+
 		// liste les OU dans eleves
 		$lsclass = ldap_search($this->ds, $this->ldap_ou_elv, "(objectClass=organizationalUnit)", $justthese);
 		$info = ldap_get_entries($this->ds, $lsclass);
 		// parcours les OU, compte les membres actifs pour eliminer les OU vides
 		for ($i=0; $i < $info["count"]; $i++) {
-			$lsmemb = ldap_list($this->ds, 
-				$info[$i]['dn'], 
-				"(&(objectCategory=person)(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))", 
+			$lsmemb = ldap_list($this->ds,
+				$info[$i]['dn'],
+				"(&(objectCategory=person)(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))",
 				$justthese);
 			if (ldap_count_entries($this->ds, $lsmemb) > 0) {
-				$resultat[] = $info[$i]["ou"][0];
+				// ne retourne pas la classe si elle doit etre masquee
+				if ( !in_array( $info[$i]["ou"][0], $_CONF['AD_Grp_Cache'] )) {
+					$resultat[] = $info[$i]["ou"][0];
+				}
 			}
 		}
 		sort($resultat);
 		return $resultat;
 	}
-	
+
 	/**
 	 * Force un utilisateur à modifier son mot de passe à la prochaine ouverture de session
 	 *
@@ -246,21 +257,21 @@ class AnnuaireLDAP {
 	function set_UserMustChangePassword($uid) {
 		global $_CONF;
 		$this->connecter(true);
-		
+
 		// cherche le chemin ldap correspondant a l'uid
 		$res = ldap_search($this->ds, $_CONF['AD_Chemin'], "(sAMAccountName=". ldap_escape($uid, '', LDAP_ESCAPE_DN).")");
 		$dn = ldap_first_entry($this->ds, $res);
-		
+
 		// définis l’attribut pwdLastSet sur zéro
 		$attribut = array();
 		$attribut["pwdLastSet"][0] = 0;
-		
+
 		$result = ldap_modify($this->ds, ldap_get_dn($this->ds, $dn), $attribut);
 //		var_dump($result);
 	//	$result = ldap_get_attributes($this->ds, $dn);
 		ldap_close($this->ds);
-		
+
 	//	var_dump($result["pwdLastSet"]);
 	}
-	
+
 }

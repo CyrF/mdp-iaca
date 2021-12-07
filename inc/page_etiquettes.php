@@ -17,7 +17,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
- 
+
 $classe = base64_decode($_GET['id']);
 $list = $ldap->get_usergroups( $classe );
 
@@ -27,20 +27,20 @@ Pour masquer certaines vignettes, cliquez dessus.</h3>";
 foreach ($list as $entry) {
 	$b64_uid = b64($entry['Identifiant']);
 	?>
-	
+
 <div class="vignet" onclick="this.style.display = 'none';">
 	<div class="vignet-classe"><?php echo $classe; ?></div>
 	<div class="nom condensed"><?php echo $entry['NomComplet']; ?></div>
-	
+
 	<div class="">
 		<span class="condensed desc short">Identifiant réseau : </span>
 		<?php echo strtolower( $entry['Identifiant'] ); ?>
 	</div>
 	<div class="nom" style="letter-spacing: -0.065em;">
 		<span class="condensed desc">Sur le portable #MonOrdiAuLycee et l'accès à office.com, utilisez<br></span>
-		<?php echo $entry['Compte365']; ?>
+		<?php echo $entry['Compte365']; ?><br>
 	</div>
-	
+
 	<div class="">
 		<span class="condensed desc short">Mot de passe réseau : </span>
 		<span id="<?php echo 'pwd_' . $b64_uid; ?>" ></span>
@@ -50,17 +50,6 @@ foreach ($list as $entry) {
 
 <?php
 }; //foreach
-
-/**
- * convertit en b64 sans les egals a la fin
- *
- *	@param string $txt	texte a convertir
- *
- *	@return string
- */
-function b64( $txt ) {
-	return str_replace('=', '', base64_encode($txt));
-}
 ?>
 
 <script>
@@ -80,22 +69,22 @@ function getMdp( catid ) {
 		return response.text().then(function(text) {
 			if (text == '**************') {
 				// masque dans iaca, affiche rien \ö/
-				cat.style.display = "none"; 
+				cat.style.display = "none";
 			} else if (text == "Votre session a expirée.") {
 				// renvoie a l'ecran de login
 				window.location.replace("?sessionexpired");
 			} else {
 				// affichage du mdp
-				cat.style.display = "none"; 
+				cat.style.display = "none";
 				pwd.innerHTML = text;
 			}
 		});
-	});	
+	});
 }
 </script>
 
 <style>
-/* formattage des vignettes pour l'impression */	 
+/* formattage des vignettes pour l'impression */
 
 * {margin:0;padding:0;}
 .vignet {
@@ -106,8 +95,8 @@ function getMdp( catid ) {
 	padding:		0.1cm;
 	display:		inline-block;
 	margin:			0.05cm;
-	margin-left:	0.1cm;	
-	margin-bottom:	0.1cm;	
+	margin-left:	0.1cm;
+	margin-bottom:	0.1cm;
 	font: 1.08rem "Times New Roman";
 	text-overflow: "";
   white-space: nowrap;

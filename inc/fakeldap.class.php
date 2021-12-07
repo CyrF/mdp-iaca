@@ -32,7 +32,7 @@ class AnnuaireLDAP {
 		$this->ldap_base_dn	= $dc;
 		$this->bound		= false;
 	}
-	
+
 	/**
 	 * Tente de s'authentifier avec un compte LDAP
 	 *
@@ -48,7 +48,7 @@ class AnnuaireLDAP {
 			return false;
 		}
 	}
-		
+
 	/**
 	 * Retourne les utilisateurs
 	 *
@@ -60,6 +60,7 @@ class AnnuaireLDAP {
 		if ($uid == "prof") {
 			return array(
 				'cn' => "Hilaire PROF",
+				'Compte365' => 'prof@pdtor.dS3iose.a645caan5i4ule0ley',
 				'uid' => "prof");
 		}
 	}
@@ -72,12 +73,12 @@ class AnnuaireLDAP {
 	 */
 	function get_classes(){
 		return array(
-			'Justice League', '_1Gotham City', '2Metropolis', 'Themyscira', 
-			'TSector 666', '1Atlantis', '_2Asgard', 'TManhattan', '_TAvengers', 
+			'Justice League', '_1Gotham City', '2Metropolis', 'Themyscira',
+			'TSector 666', '1Atlantis', '_2Asgard', 'TManhattan', '_TAvengers',
 			'1Wakanda', "2Hell's Kitchen", 'Guardians of the Galaxy'
 		);
 	}
-	
+
 	/**
 	 * Cree un login credible a partir du nom
 	 *
@@ -97,7 +98,7 @@ class AnnuaireLDAP {
 			return strtolower( $nom . substr($n[1], 0, 1) ) . rand(0,10);
 		}
 	}
-	
+
 	/**
 	 * Cree un mot de passe aleatoire
 	 *
@@ -108,21 +109,21 @@ class AnnuaireLDAP {
 	private function Creer_Pass( $n=5 ) {
 		return substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',$n)),0,$n);
 	}
-	
+
 	/**
 	 * Cree un utilisateur aleatoire, au format "DOE John Jane"
 	 *
 	 *	@return string
 	 */
 	private function Creer_NomAleatoire() {
-		$prenom = array( 
+		$prenom = array(
 			array(
 				'Arthur', 'Bruce', 'Victor', 'John', 'Yondu', 'Alfred',
-				'Ray', 'Oliver', 'Billy', 'Stephen', 'Kal', "T'Challa", 
-				'Tony', 'Henry',  'Steve',  'Thor', 'Peter', 'Hal', 
+				'Ray', 'Oliver', 'Billy', 'Stephen', 'Kal', "T'Challa",
+				'Tony', 'Henry',  'Steve',  'Thor', 'Peter', 'Hal',
 			), array(
-				'Dinah', 'Ivy', 'Lois', 'Diana', 'Barbara', 'Maria', 
-				'Kara', 'Harleen', 'Cassandra', 'Janet', 'Wanda', 
+				'Dinah', 'Ivy', 'Lois', 'Diana', 'Barbara', 'Maria',
+				'Kara', 'Harleen', 'Cassandra', 'Janet', 'Wanda',
 				'Carol', 'Natasha', 'Gamora', 'Mötley'
 			)
 		);
@@ -144,7 +145,7 @@ class AnnuaireLDAP {
 
 		return $nom;
 	}
-	
+
 	/**
 	 * Retourne les utilisateurs dans a une classe
 	 *
@@ -158,21 +159,21 @@ class AnnuaireLDAP {
 			$nom = $this->Creer_NomAleatoire();
 			$id = $this->Creer_Login( $nom );
 			array_push($list, array(
-				'NomComplet' => str_replace('_', ' ', $nom), 
-				'Identifiant' => $id, 
+				'NomComplet' => str_replace('_', ' ', $nom),
+				'Identifiant' => $id,
 				'Compte365' => $id . '@pdtor.dS3iose.a645caan5i4ule0ley',
 				'logoncount' => rand(0,10),
 				'pwdLastSet' => rand(0,10),
 				'Classe' => $grp,
-				'Id_ent' => $this->Creer_Login( $nom , true), 
-				'Pw_ent' => $this->Creer_Pass(), 
-				)); 
+				'Id_ent' => $this->Creer_Login( $nom , true),
+				'Pw_ent' => $this->Creer_Pass(),
+				));
 		}
 		sort($list);
 		return $list;
 	}
-	
-	
+
+
 	/**
 	 * Recherche un ou des utilisateurs
 	 *
@@ -190,5 +191,5 @@ class AnnuaireLDAP {
 		}
 		return $list;
 	}
-	
+
 }
