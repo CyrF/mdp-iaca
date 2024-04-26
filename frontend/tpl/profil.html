@@ -1,0 +1,119 @@
+<!-- INCLUDE head_entete -->
+
+<body>
+
+<!-- INCLUDE nav_barre_horizontale -->
+
+<div id="contenu">
+	<div class="container-sm w-50">
+		<!-- IF_DEFINED msg_changement_ok -->
+		<div class='alert alert-success'>
+			Votre mot de passe a été changé.
+		</div>
+		<!-- ENDIF -->
+		<!-- IF_DEFINED msg_changement_err -->
+		<div class='alert alert-danger'>
+			Une erreur est survenue.
+			Des marmottes sont parties enquêter.
+			Attendez qu'elles reviennent, et réessayez plus tard.
+			{msg_changement_err}
+		</div>
+		<!-- ENDIF -->
+
+		<h3 class="pt-3">Compte de {Nom_Utilisateur} </h3>
+		<br />
+
+		<form method="POST">
+			<div class="">
+				<label for="uid" class="form-label">Votre identifiant IACA</label>
+				<input type="text" class="form-control"
+					id="uid" name="Identifiant"
+					value="{user_id}" disabled readonly />
+
+						<div class="form-text">Le Conseil Régional a souscrit un contrat de licence vous permettant
+							d'utiliser Microsoft Office 365. <br />
+							Pour cela, utilisez votre identifiant IACA sous sa forme complète
+							<code>{Compte365}</code>
+							directement sur le site office.com
+
+						</div>
+
+			</div>
+			<br />
+
+			<div class="">
+				<label for="set" class="form-label">Entrez votre nouveau mot de passe</label>
+				<input type="password" class="form-control font-monospace"
+					id="set" name="NouveauMDP"
+					pattern=".{{MotdePasse_Longueur},128}" autocomplete="new-password"
+					oninput="updatePasswordMeterBar(this.value, {MotdePasse_Longueur});" />
+
+				<meter id="pwdscore" min=0 max=100 value=1 style="width:100%"></meter>
+				<br />
+
+				<div class="form-check form-switch form-text">
+					<input type="checkbox" class="form-check-input"
+						id="showpwd" onclick="togglePasswordVisibility('set')" />
+					<label class="form-check-label" for="showpwd">
+						Afficher le mot de passe en clair
+					</label>
+				</div>
+				<div id="setHelp" class="form-text">
+					</p>Le mot de passe doit comporter un
+					<span class="text-danger" id ="PassConstraint">
+						minimum de {MotdePasse_Longueur} caractères.
+					</span></p>
+					<p class="mb-0">Il est possible de combiner des lettres majuscules ou minuscules,
+					ainsi que des caractères spéciaux et des chiffres.</p>
+					<div class="text-center">
+						Par exemple :
+						<code id="exemple_mdp_code" style="cursor:pointer;"
+							data-bs-toggle="tooltip" data-bs-placement="top"
+							title="Cliquer pour générer un autre code."
+							onclick="this.textContent = generate_pwd ({MotdePasse_Longueur});">
+							This will be replaced by javascript.
+						</code>
+					</div>
+			<!-- IF_DEFINED AfficherPassPhrase -->
+					<p class="mb-0">Plus facile à retenir, un mot de passe peut aussi être remplacé par
+					une pseudo-phrase sans signification de quelques mots.</p>
+					<div class="text-center">
+						Par exemple :
+						<code id="exemple_mdp_phrase" style="cursor:pointer;"
+							data-bs-toggle="tooltip" data-bs-placement="bottom"
+							title="Cliquer pour générer une autre phrase."
+							onclick="this.textContent = generate_wrd ();">
+							This will be replaced by javascript.
+						</code>
+					</div>
+			<!-- ENDIF -->
+				</div>
+			</div>
+			<br />
+
+			<button type="submit" class="btn btn-primary" id="modal-save">Enregistrer</button>
+			<!-- IF_DEFINED AfficherMenus -->
+			<!-- ELSE -->
+			<a class="btn  btn-secondary" href="?logout">Déconnexion</a>
+			<!-- ENDIF -->
+		</form>
+	</div>
+</div>
+</body>
+
+<script src="{navigation.BASE_URL}/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+
+<script>
+document.getElementById('exemple_mdp_code').textContent = generate_pwd ({MotdePasse_Longueur});
+//<!-- IF_DEFINED AfficherPassPhrase -->
+document.getElementById('exemple_mdp_phrase').textContent = generate_wrd ();
+//<!-- ENDIF -->
+
+// active les bulles d'aides
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+</script>
+
+</html>

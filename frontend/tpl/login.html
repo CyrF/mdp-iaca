@@ -1,0 +1,41 @@
+<!-- INCLUDE head_entete -->
+
+<body class="fond-connexion">
+	<div class="vw-100 vh-100 d-flex flex-column justify-content-between align-items-center">
+
+		<div class="text-muted"></div>
+
+		<main class="boite-connexion w-100 w-lg-50 px-3 text-center shadow rounded-3 {erreur_login}">
+
+    <img class="img-fluid mt-5 mb-3" style="height: 5em;object-fit: contain;"
+			src="{navigation.BASE_URL}/logo.php">
+			<form action="{navigation.BASE_URL}/" method="POST" novalidate>
+				<h3 class="h4 my-4 fw-normal">Authentification</h3>
+				<h3 class="form-text">Outil de récupération des comptes élèves sur le réseau</h3>
+
+				<!-- IF_DEFINED msg_erreur_login -->
+				<div class="alert alert-warning">{msg_erreur_login}</div>
+				<!-- ENDIF -->
+
+				<!-- IF_DEFINED msg_erreur_count -->
+				<div class="alert alert-danger">{msg_erreur_count}</div>
+				<!-- ELSE -->
+				<div class="form-floating my-4">
+					<input type="text" class="form-control"
+						id="floatingInput" placeholder="Nom d'utilisateur" name="username" required />
+					<label for="floatingInput">Utilisateur (Identifiant de session IACA)</label>
+				</div>
+				<div class="form-floating mb-4">
+					<input type="password" class="form-control"
+						id="floatingPassword" placeholder="Mot de passe" name="password" required />
+					<label for="floatingPassword">Mot de passe</label>
+				</div>
+				<button class="w-75 my-4 btn btn-primary" type="submit">Connexion</button>
+				<!-- ENDIF -->
+			</form>
+		</main>
+
+    <div class="text-muted">Service Informatique &copy; 2021</div>
+
+	</div>
+</body>

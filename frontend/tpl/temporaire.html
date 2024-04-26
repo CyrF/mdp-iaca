@@ -1,0 +1,48 @@
+<!-- INCLUDE head_entete -->
+
+<body>
+
+<!-- INCLUDE nav_barre_horizontale -->
+
+<div id="contenu">
+	<div class="container navbar">
+		<div class="container-fluid d-print-none">
+			<h3>Comptes élèves inactifs ({nombre} résultats)</h3>
+		</div>
+
+		<table class="table table-striped table-hover">
+			<thead class="table-dark d-print-none">
+				<tr>
+					<th></th>
+					<th style="text-align:center;">Classe</th>
+					<th></th>
+				</tr>
+			</thead>
+
+			<!-- BEGIN eleves -->
+			<tr>
+				<td>
+					{eleves.NOMCOMPLET}
+				</td>
+
+				<td style="text-align:center;">
+					<a href="?pg=classe&id={b64_eleves.CLASSE}"
+						class="btn btn-outline-success" style="width:100%;">
+						{eleves.CLASSE}
+					</a>
+				</td>
+
+				<td>
+					Compte créé le {eleves.WHENCREATED}					
+					<!-- IF_DEFINED eleves.LASTCHANGE -->
+					(dernière connexion le {eleves.LASTCHANGE})
+					<!-- ENDIF -->
+				</td>
+			</tr>
+			<!-- STOP eleves -->
+		</table>
+		<img src="./runcat2.gif" style="visibility:hidden;" />
+	</div>
+</div>
+
+<script src="{navigation.BASE_URL}/vendor/bootstrap/bootstrap.bundle.min.js"></script>

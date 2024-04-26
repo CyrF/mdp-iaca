@@ -1,0 +1,48 @@
+<!-- INCLUDE head_entete -->
+
+<body>
+
+<!-- INCLUDE nav_barre_horizontale -->
+
+
+<div id="contenu">
+	<div class="container navbar">
+
+		<table class="table table-striped table-hover">
+			<thead class="table-dark d-print-none">
+				<tr class="vignet-tr">
+					<th>Date</th>
+					<th>Machine</th>
+					<th>Utilisateur</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+
+			<!-- BEGIN journal -->
+			<tr>
+				<td>
+				<!-- IF_DEFINED journal.DATE -->
+					{journal.DATE}
+				<!-- ELSE -->
+					{journal.TIMESTAMP}
+				<!-- ENDIF -->
+				</td>
+
+				<td>
+					{journal.MACHINESOURCE}
+				</td>
+
+				<td>
+					{journal.UTILISATEUR}
+				</td>
+
+				<td class="bg-{journal.NIVEAU}" >
+					{journal.ACTION}
+				</td>
+			</tr>
+			<!-- STOP journal -->
+		</table>
+	</div>
+</div>
+
+<script src="{navigation.BASE_URL}/vendor/bootstrap/bootstrap.bundle.min.js"></script>

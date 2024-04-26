@@ -1,0 +1,55 @@
+<!-- INCLUDE head_entete -->
+
+<body>
+
+<!-- INCLUDE nav_barre_horizontale -->
+
+<div id="contenu">
+	<div class="container navbar">
+		<!-- IF_DEFINED msg_changement -->
+		<div class='alert alert-{msg_changement_RESULTAT} flex-fill'>
+			{msg_changement}
+		</div>
+		<!-- ENDIF -->		
+		<form class="row gx-3" method="POST">
+			<input type="hidden" name="SauvegardeConfig" />
+			<!-- BEGIN liste_params -->
+		<!-- IF_DEFINED liste_params.SECTION -->
+		<h3 class="mt-4">{liste_params.SECTION}</h3>
+		<div class="form-text mb-3">{liste_params.DESCRIPTION}</div>
+		<!-- ENDIF -->
+		<!-- IF_DEFINED liste_params.CLEF -->
+		<div class="row mb-4">
+			<label for="{liste_params.CLEF}" class="col-sm-4 col-form-label text-end">
+				{liste_params.CLEF}
+			</label>
+			<div class="col-sm">
+			<!-- IF_DEFINED liste_params.MULTILIGNE -->
+				<textarea class="form-control" rows="3"
+					name="{liste_params.CLEF}" id="{liste_params.CLEF}"
+					>{liste_params.VALEUR}</textarea>
+			<!-- ELSE -->
+				<input type="text" class="form-control"
+					name="{liste_params.CLEF}" id="{liste_params.CLEF}"
+					value="{liste_params.VALEUR}" />
+			<!-- ENDIF -->
+				<div class="form-text">
+					{liste_params.DESCRIPTION}
+				</div>
+			</div>
+		</div>
+		<!-- ENDIF -->
+			<!-- STOP liste_params -->
+			
+
+	<div class="mt-3 mb-5 d-flex justify-content-center">
+		<button id="Button" class="btn btn-primary" type="submit">
+			Enregistrer les préférences
+		</button>
+	</div>
+
+</form>
+	</div>
+</div>
+
+<script src="{navigation.BASE_URL}/vendor/bootstrap/bootstrap.bundle.min.js"></script>
