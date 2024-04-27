@@ -10,7 +10,7 @@
 	
 	
 // cherche les fichiers logo disponibles
-if ($liste = glob (__DIR__ . '/tpl/logo_*.png', GLOB_NOSORT)) {
+if ($liste = glob (__DIR__ . '/static/tpl/logo_*.png', GLOB_NOSORT)) {
 	// en choisit un au hazard
 	$logo = $liste[array_rand ($liste)];
 	// l'envoie au navigateur

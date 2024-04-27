@@ -113,7 +113,7 @@ class Config {
 
 	function __construct() {
 		$this->fichier_defaut = __DIR__ . '/config.ini';
-		$this->fichier_user = __DIR__ . '/user_config.php';
+		$this->fichier_user = '/logs/user_config.php';
 
 		$this->ini = parse_ini_file ($this->fichier_defaut, true, INI_SCANNER_TYPED);
 

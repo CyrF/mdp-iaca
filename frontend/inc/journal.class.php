@@ -26,7 +26,7 @@ class JournalEvent {
 	 * @return null
 	 */
 	function __construct ($nom_base, $nom_table = 'EventLog', $cols = false) {
-		$fichier_base = __DIR__ . "/$nom_base.sqlite";
+		$fichier_base = "/logs/$nom_base.sqlite";
 
 		$this->table = $nom_table;
 		$this->cols = $cols;
