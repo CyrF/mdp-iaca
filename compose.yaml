@@ -1,0 +1,40 @@
+services:
+  nginx:
+    image: nginx:1.26-alpine3.19-slim
+    ports:
+      - 8080:80
+    volumes:
+      - type: bind
+        source: ./nginx/default.conf
+        target: /etc/nginx/conf.d/default.conf
+      - type: bind
+        source: ./nginx/static
+        target: /var/www/html
+    depends_on:
+     - backend
+     
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider --quiet nginx:80/nginx-health-check || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    #restart: always
+      
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile
+      tags:
+        - crpdl/phpiaca
+    volumes:
+      - type: bind
+        source: ./backend
+        target: /var/www/html
+      - type: volume
+        source: db-data
+        target: /logs
+    restart: always
+        
+volumes:
+  db-data:
+  
