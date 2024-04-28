@@ -2,6 +2,8 @@
 
 _Serveur offrant une interface web permettant la réinitialisation du mot de passe d’un élève, dans un environnement IACA._
 
+![screenshot](miniature.png)
+
 
 ## Ressources matérielles
 
@@ -37,6 +39,8 @@ Télécharge l’appli avec l’outil git dans le dossier `/docker/mdp-iaca` et 
 cd /docker/mdp-iaca
 docker compose up -d
 ```
+
+> TODO a reécrire, les fichiers ont été déplacés
 
 En première installation, le fichier `./inc/user_config.php` n'existe pas. Il faut se connecter à l'interface web en `admin` avec le mdp `admin` pour le créer via la page de configuration.
 
