@@ -4,13 +4,16 @@ FROM php:8.3-fpm-alpine3.19
 
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
-RUN chmod +x /usr/local/bin/install-php-extensions; \
+RUN apk add fcgi; \
+    chmod +x /usr/local/bin/install-php-extensions; \
     install-php-extensions ldap 
 
 # Use the default production configuration
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"; \
     sed -i 's/^;\?\(cgi\.fix_pathinfo\)=[0-1].*/\1=0/' "$PHP_INI_DIR/php.ini"; \
     mkdir /logs && chown www-data:www-data /logs
+# ne doit pas etre accessible de l'exterieur!
+# echo [global] \npm.status_path /status > /usr/local/php-fpm.conf.d/90_fpm-status.conf
 
 USER www-data
 
