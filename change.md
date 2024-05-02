@@ -56,7 +56,7 @@ résultats des tests
 
 ## version 2.next: gestion des comptes invités
 
-- [ ] ajouter une page de création de comptes temporaires
+- [x] ajouter une page de création de comptes temporaires
 - [ ] associer ces comptes dans "invités" ou "exam"
 - [ ] attribuer une date d'expiration (7jours)
 - [ ] formulaire demandant nom-prénom, liste déroulante ajax?

@@ -281,6 +281,25 @@ switch ($_SESSION['page_courante']) {
 			exit();
 		}
 		break;
+        
+	case 'exam' :
+		/*
+		 *	===============		LISTE DES COMPTES EXAMENS	===============
+		 */
+		if ($Config->PuisJe ('AfficherMenuCompteExams')) {
+			$list = $ldap->find_users (null, true);
+
+			// prepare les donnees a inserer dans le template
+			$h->add_vars ('exams', $list);
+			$h->add_vars (array (
+				'nombre'		=> count($list),
+				));
+			$navigation['TITRE'] .= ' - ' . $_SESSION['page_courante'];
+		} else {
+			$ev->creer ('Acces non autorisé a ' . $_SESSION['page_courante'], E_ERROR);
+			exit();
+		}
+		break;
 
 	default:
 		/*

@@ -1,0 +1,52 @@
+<!-- INCLUDE head_entete -->
+
+<body>
+
+<!-- INCLUDE nav_barre_horizontale -->
+
+<div id="contenu">
+	<div class="container navbar">
+		<div class="container-fluid d-print-none">
+			<h3>Comptes temporaires de type examen</h3>
+
+			<span>
+				<!-- IF_DEFINED AfficherNouveauCompte -->
+				<span class='btn btn-outline-success btn-sm'
+						type='button' 
+						onclick='AddAccount();'
+						data-bs-toggle='modal'
+						data-bs-target='#NewAccountModal'
+						>
+					Ajouter un compte
+				</span>
+				<!-- ENDIF -->
+			</span>
+		</div>
+
+		<table class="table table-striped table-hover">
+			<thead class="table-dark d-print-none">
+				<tr>
+					<th>Identifiant</th>
+					<th>Mot de passe</th>
+					<th style="text-align:center;">Assigné à</th>
+					<th>Créé par</th>
+					<th>Expiration</th>
+				</tr>
+			</thead>
+
+			<!-- BEGIN exams -->
+			<tr>
+				<td>{exams.IDENTIFIANT}</td>
+				<td>{b64_exams.PASSWORD}</td>
+				<td>{exams.NOMCOMPLET}</td>
+				<td>{exams.CREATEDBY}</td>
+				<td>{exams.WHENCREATED}</td>
+			</tr>
+			<!-- STOP exams -->
+			<tr id="addedAccounts"></tr>
+		</table>
+		<img src="./runcat2.gif" style="visibility:hidden;" />
+	</div>
+</div>
+
+<script src="{navigation.BASE_URL}/vendor/bootstrap/bootstrap.bundle.min.js"></script>
