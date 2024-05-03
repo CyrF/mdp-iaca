@@ -43,8 +43,8 @@ l'appli utilise un fichier de conf et une base sqlite pour les logs
 - [ ] ou convertir la conf en var. envirnmt.
 
 apache est configuré en https
-- [ ] gérer comment mettre le certificat
-- [ ] exposer port 443/4343
+- [x] gérer comment mettre le certificat
+- [x] exposer port 443/4343
 
 résultats des tests
 - [x] 403 quand il y a pas de fichier dans l'url ? bug config nginx
