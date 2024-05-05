@@ -61,4 +61,5 @@ résultats des tests
 - [ ] attribuer une date d'expiration (7jours)
 - [ ] formulaire demandant nom-prénom, liste déroulante ajax?
 - [ ] loguer qui crée et utilise ces comptes
+- [x] recharge la page une fois expirée
 

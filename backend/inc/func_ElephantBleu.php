@@ -11,11 +11,11 @@
  *
  * @return null
  */
-function my_session_start() {
+function my_session_start($idletime = 300) {
 	session_start();
 
 	if (!empty ($_SESSION['deleted_time']) &&
-			$_SESSION['deleted_time'] < time() - (15 * 60)) {
+			$_SESSION['deleted_time'] < time() - ($idletime)) {
 		//$ev->creer ('La session a expirée.', E_NOTICE);
 		my_session_destroy();
 		session_start();

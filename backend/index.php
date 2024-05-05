@@ -28,7 +28,7 @@ define ('ELEVE',	1);
 define ('PROF',		2);
 define ('GURU',		4);
 
-my_session_start();	// definit aussi la page_par_defaut et l'autologout
+my_session_start(Config::get ('Global_idletime'));	// definit aussi la page_par_defaut et l'autologout
 
 $h = new Modele_HTML();	// initialise le template
 
@@ -88,6 +88,7 @@ $ldap = new AnnuaireLDAP (
 // donnees communes dans le template
 $navigation = array (
 	'TITRE' 			=> 'MdP Iaca',								// titre de la page a afficher
+	'TIMEOUT'	=> Config::get('Global_idletime') + 10,
 	'BASE_URL'		=> (! empty ($_SERVER['REQUEST_SCHEME'])) ? $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] : dirname ($_SERVER['PHP_SELF']),
 	);
 $h->add_vars (array (
