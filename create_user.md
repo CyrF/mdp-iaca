@@ -63,4 +63,6 @@ sAMAccountType		= 805306368 (NORMAL_USER_ACCOUNT)
 sAMAccountControl	= 0x10200 (NORMAL_ACCOUNT | DONT_EXPIRE_PASSWORD)
 userPrincipalName	= EXAM02@0442765s.paysdelaloire.education
 
-https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/useraccountcontrol-manipulate-account-properties
+- https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/useraccountcontrol-manipulate-account-properties
+- https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/change-windows-active-directory-user-password
+- https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adod/1fd2c193-fc70-4f90-a8c8-f1ca2de4e5ac?source=recommendations
