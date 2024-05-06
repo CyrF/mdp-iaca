@@ -49,6 +49,7 @@ apache est configuré en https
 résultats des tests
 - [x] 403 quand il y a pas de fichier dans l'url ? bug config nginx
 - [ ] lenteur pour générer les pages: disparait si connecté au net (doit y a avoir un timeout)
+>trouvé c'est gethostbyaddr qui provoque ce ralenti
 >a voir, il existe un profileur valgrind/xdebug
 - [x] probleme d'encodage des accents: utf8 dans la conf nginx
 - [ ] php crash quand on spamme F5 (recomand augmenter pm.max_children)

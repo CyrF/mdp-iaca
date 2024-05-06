@@ -28,7 +28,7 @@ define ('PROF', 2);	// niveau d'acces
 
 // initialise le journal
 $ev = new JournalEvent ('ActionUtilisateur');
-$ev->set_donnee ('MachineSource', gethostbyaddr ($_SERVER['REMOTE_ADDR']));
+$ev->set_donnee ('MachineSource', ""); //gethostbyaddr ($_SERVER['REMOTE_ADDR']));
 $ev->set_donnee ('Utilisateur', (($_SESSION['user_name']) ?? 'nobody'));
 
 

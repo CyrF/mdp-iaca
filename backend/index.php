@@ -34,7 +34,7 @@ $h = new Modele_HTML();	// initialise le template
 
 // initialise le journal
 $ev = new JournalEvent ('ActionUtilisateur');
-$ev->set_donnee ('MachineSource', gethostbyaddr ($_SERVER['REMOTE_ADDR']));
+$ev->set_donnee ('MachineSource', ""); //gethostbyaddr ($_SERVER['REMOTE_ADDR']));
 $ev->set_donnee ('Utilisateur', (($_SESSION['user_name']) ?? 'nobody'));
 
 // l'utilisateur s'en va
