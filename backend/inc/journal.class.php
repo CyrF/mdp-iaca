@@ -119,7 +119,7 @@ class JournalEvent {
 		// interroge la base
 		$sql = 'SELECT
 				*,
-				STRFTIME (\'%Y-%m-%d %H:%M\', TimeStamp, \'unixepoch\', \'localtime\') AS Date
+				STRFTIME (\'%Y-%m-%d %H:%M\', TimeStamp, \'unixepoch\', \'+2 hours\') AS Date
 				FROM ' . $this->table .
 			' WHERE Niveau <= '. $niveau .
 			' ORDER BY rowid DESC' .
@@ -129,6 +129,7 @@ class JournalEvent {
 
 		while ($row = $results->fetchArray (SQLITE3_ASSOC)) {
 			$row['Niveau'] = $n[$row['Niveau']];
+			$row['Action'] = htmlspecialchars_decode($row['Action'], ENT_QUOTES);;
 			$evt[] = array_change_key_case ($row, CASE_UPPER);
 		}
 		return $evt;
