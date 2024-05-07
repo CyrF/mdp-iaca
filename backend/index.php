@@ -65,7 +65,7 @@ if (! empty ($_POST)) {
 		$_SESSION['acces']				= $is_auth;
 
 		$ev->set_donnee ('Utilisateur', $_SESSION['user_name']);
-		$ev->creer ($_SESSION['user_name'] . ' est connecté ('. $_SESSION['acces'] .').', E_NOTICE);
+		$ev->creer ($_SESSION['user_name'] . ' est connecté ('. get_userlevel($_SESSION['acces']) .').', E_NOTICE);
 		} else {
 			$msg_erreur_login = 'Identifiant et/ou mot de passe incorrect !';
 			if (isset ($_SESSION['failed_count'])) {

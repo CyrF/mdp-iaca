@@ -67,6 +67,24 @@ function get_page_courante() {
 }
 
 
+/**
+ * Renvoie le type de compte correspondant au niveau d'acl
+ *
+ *	@param int $lvl			valeur stockée dans $_SESSION['acces']
+ *
+ *	@return string
+ */
+function get_userlevel($lvl)
+{
+    //convertit le niveau numerique en nom
+    $consts = get_defined_constants(true)['user'];
+    if (is_array($consts))
+	{
+        $consts_inv = array_flip($consts);
+        return $consts_inv[$lvl] ?? $lvl;
+    }
+    return $lvl;
+}
 
 
 /**
