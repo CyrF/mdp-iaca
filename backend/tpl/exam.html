@@ -4,6 +4,8 @@
 
 <!-- INCLUDE nav_barre_horizontale -->
 
+<!-- INCLUDE form_nouveaucompte -->
+
 <div id="contenu">
 	<div class="container navbar">
 		<div class="container-fluid d-print-none">
@@ -36,7 +38,11 @@
 
 			<!-- BEGIN exams -->
 			<tr>
-				<td>{exams.IDENTIFIANT}</td>
+				<td>
+					<span type='button' class='btn btn-outline-secondary btn-sm d-print-none me-3'>
+						Supprimer
+					</span>
+					{exams.IDENTIFIANT}</td>
 				<td>{b64_exams.PASSWORD}</td>
 				<td>{exams.NOMCOMPLET}</td>
 				<td>{exams.CREATEDBY}</td>
