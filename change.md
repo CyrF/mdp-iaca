@@ -40,7 +40,6 @@ Probably safer to do `docker ps -q -f health=unhealthy | xargs docker restart`
 l'appli utilise un fichier de conf et une base sqlite pour les logs
 - [x] monter dans un volume la base sqlite
 - [x] monter dans un volume le fichier conf
-- [ ] ou convertir la conf en var. envirnmt.
 
 apache est configuré en https
 - [x] gérer comment mettre le certificat
@@ -48,7 +47,7 @@ apache est configuré en https
 
 résultats des tests
 - [x] 403 quand il y a pas de fichier dans l'url ? bug config nginx
-- [ ] lenteur pour générer les pages: disparait si connecté au net (doit y a avoir un timeout)
+- [x] lenteur pour générer les pages: disparait si connecté au net (doit y a avoir un timeout)
 >trouvé c'est gethostbyaddr qui provoque ce ralenti
 >a voir, il existe un profileur valgrind/xdebug
 - [x] probleme d'encodage des accents: utf8 dans la conf nginx
