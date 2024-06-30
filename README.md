@@ -44,8 +44,6 @@ docker compose up -d
 
 En première installation, le fichier `./inc/user_config.php` n'existe pas. Il faut se connecter à l'interface web en `admin` avec le mdp `admin` pour le créer via la page de configuration.
 
-A partir de là, l'application est déjà utilisable via l'adresse http://srv-mdpiaca/
-
 
 ## Utilisation
 
@@ -75,12 +73,12 @@ _Configuration ordinateur > modèle administration > mozilla firefox > Paramètr
 * Pour éviter l’alerte de sécurité lié au certificat auto-signé :
 
 Se connecter à l’adresse https://srv-mdpiaca:4343, cliquer sur **afficher le certificat** pour l’enregistrer sous
-_\\___<NomDuDomaine>___.local\NetLogon\srv-mdpiaca.pem._
+`\\NomDuDomaine.local\NetLogon\srv-mdpiaca.pem`
 
 Ensuite, sous _Configuration ordinateur > modèle d’administration > mozilla firefox > Certificates_ ouvre **Installation des Certificats**, coche **Activé**, clique sur **Afficher…** et renseigne la valeur :
 
 ```
-\\___<NomDuDomaine>____.local\NetLogon\srv-mdpiaca.pem
+\\NomDuDomaine.local\NetLogon\srv-mdpiaca.pem
 ```
 
 ## Notes
