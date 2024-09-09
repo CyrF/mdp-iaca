@@ -1,0 +1,3 @@
+inc/config.php
+inc/*.sqlite
+inc/user_config.php

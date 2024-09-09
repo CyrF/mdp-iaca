@@ -1,0 +1,79 @@
+<!-- INCLUDE head_entete -->
+
+<body>
+
+<!-- INCLUDE nav_barre_horizontale -->
+<!-- INCLUDE form_motdepasseeleve -->
+
+<div id="contenu">
+	<div class="container navbar">
+		<div class="container-fluid d-print-none">
+			<h3>Recherche : {cherche} ({nombre} résultats)</h3>
+			<span>
+				<!-- IF_DEFINED AfficherBoutonVoirTous -->
+				<span class="btn btn-outline-success"
+					onclick='RevelerTous(this.id);' id="btnshow">Afficher les MdP
+				</span>
+				<!-- ENDIF -->
+			</span>
+		</div>
+
+		<table class="table table-striped table-hover">
+			<thead class="table-dark d-print-none">
+				<tr class="vignet-tr">
+					<th></th>
+					<th style="text-align:center;">Classe</th>
+					<th>Identifiant IACA</th>
+					<th>Mot de passe</th>
+				</tr>
+			</thead>
+
+			<!-- BEGIN eleves -->
+			<tr class="vignet-tr">
+				<td class="vignet-td">
+					{eleves.NOMCOMPLET}
+				</td>
+
+				<td style="text-align:center;">
+					<a href="?pg=classe&id={b64_eleves.CLASSE}"
+						class="btn btn-outline-success" style="width:100%;">
+						{eleves.CLASSE}
+					</a>
+				</td>
+
+				<td class="vignet-td">
+					<span class="d-none d-print-inline">Identifiant réseau : </span>
+					{eleves.IDENTIFIANT}
+				</td>
+
+				<td class="vignet-td">
+					<span class="d-none d-print-inline">Mot de passe : </span>
+					<span type='button' class='btn btn-outline-success btn-sm d-print-none'
+						id='pwd_{b64_eleves.IDENTIFIANT}' name='motdepasse'
+						donclick='ajax_getMdp(this.id);'
+						data-bs-toggle='modal'
+						data-bs-target='#MotdePasseModal'
+						data-bs-uid='{b64_eleves.IDENTIFIANT}'
+						data-bs-name='{b64_eleves.NOMCOMPLET}'>
+					<!-- IF_DEFINED eleves.LOGONCOUNT -->
+							Réinitialiser avec un nouveau mot de passe
+					<!-- ELSE -->
+							Le compte n'a pas été utilisé
+					<!-- ENDIF -->
+					</span>
+					<!-- IF_DEFINED eleves.PWDLASTSET -->
+					<!-- ELSE -->
+					&nbsp;
+					<span type='button' class='btn btn-outline-secondary btn-sm d-print-none disabled'>
+						Temporaire
+					</span>
+					<!-- ENDIF -->
+				</td>
+			</tr>
+			<!-- STOP eleves -->
+		</table>
+		<img src="./runcat2.gif" style="visibility:hidden;" />
+	</div>
+</div>
+
+<script src="{navigation.BASE_URL}/vendor/bootstrap/bootstrap.bundle.min.js"></script>

@@ -1,0 +1,52 @@
+<!-- INCLUDE head_entete -->
+
+<body>
+
+
+<!-- INCLUDE nav_barre_horizontale -->
+
+<div id="contenu">
+	<div class="container">
+		<h3>Sélectionner la classe :</h3>
+			<table style="margin:auto;width:88%">
+				<tr>
+					<td style="vertical-align: top;padding: 0 20px;">
+						<!-- BEGIN classes_2nde -->
+						<a class="btn btn-outline-success" style="width:100%;margin:2px auto;"
+							href="?pg=classe&id={b64_classes_2nde.CLASSE}" />{classes_2nde.CLASSE}
+						</a>
+						<br />
+						<!-- STOP classes_2nde -->
+					</td>
+					<td style="vertical-align: top;padding: 0 20px;">
+						<!-- BEGIN classes_1ere -->
+						<a class="btn btn-outline-success" style="width:100%;margin:2px auto;"
+							href="?pg=classe&id={b64_classes_1ere.CLASSE}" />{classes_1ere.CLASSE}
+						</a>
+						<br />
+						<!-- STOP classes_1ere -->
+					</td>
+					<td style="vertical-align: top;padding: 0 20px;">
+						<!-- BEGIN classes_term -->
+						<a class="btn btn-outline-success" style="width:100%;margin:2px auto;"
+							href="?pg=classe&id={b64_classes_term.CLASSE}" />{classes_term.CLASSE}
+						</a>
+						<br />
+						<!-- STOP classes_term -->
+					</td>
+					<td style="vertical-align: top;padding: 0 20px;">
+						<!-- BEGIN classes_autr -->
+						<a class="btn btn-outline-success" style="width:100%;margin:2px auto;"
+							href="?pg=classe&id={b64_classes_autr.CLASSE}" />{classes_autr.CLASSE}
+						</a>
+						<br />
+						<!-- STOP classes_autr -->
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</body>
+
+<script src="{navigation.BASE_URL}/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+</html>

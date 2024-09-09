@@ -1,0 +1,4 @@
+# autorise uniquement js
+<FilesMatch "\.(js)$">
+Require all granted
+</FilesMatch>

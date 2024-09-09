@@ -1,0 +1,64 @@
+<!-- IF_DEFINED AfficherMenus -->
+<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4 d-print-none">
+  <div class="container-fluid">
+    <span>
+		<a class="navbar-brand" href=".">
+			<img src="pass-blk.jpg" width="33" height="24">
+			&nbsp;Comptes Iaca
+		</a>
+		<a class="btn btn-outline-success" href=".">Liste des Classes</a>
+		<!-- IF_DEFINED AfficherMenuCompteExams -->
+		<a class="btn btn-outline-success" href="?pg=exam">Comptes Examens</a>
+		<!-- ENDIF -->
+	</span>
+
+	<form>
+		<input type="text" class="form-control"
+			id="floatingsearch"  name="q"
+			placeholder="🔎 Rechercher un élève..." />
+		<input type="hidden" value="cherche" name="pg" />
+	</form>
+
+	<div class="dropdown">
+	  <a class="btn btn-secondary dropdown-toggle" href="#"
+		role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
+		{Nom_Utilisateur}
+	  </a>
+	  <ul class="dropdown-menu dropdown-menu-end">
+			<!-- IF_DEFINED AfficherMenuProfilProf -->
+			<li>
+				<a class="dropdown-item" href="?pg=profil">Changer votre mot de passe</a>
+			</li>
+			<!-- ENDIF -->
+			<!-- IF_DEFINED AfficherMenuAide -->
+			<li>
+				<a class="dropdown-item" href="?pg=aide">Aide</a>
+			</li>
+			<!-- ENDIF -->
+			<!-- IF_DEFINED AfficherMenuListeTemporaire -->
+			<li>
+				<a class="dropdown-item text-info" href="?pg=temporaire">
+					Liste des comptes avec un mot de passe temporaire
+				</a>
+			</li>
+			<!-- ENDIF -->
+			<!-- IF_DEFINED AfficherMenuJournal -->
+			<li>
+				<a class="dropdown-item text-info" href="?pg=journal">Journal des connexions</a>
+			</li>
+			<!-- ENDIF -->
+			<!-- IF_DEFINED AfficherMenuConfig -->
+			<li>
+				<a class="dropdown-item text-danger" href="?pg=config">
+					Options des paramètres du panneau de configuration avec des vrais morceaux de préférences dedans
+				</a>
+			</li>
+			<!-- ENDIF -->
+			<li><hr class="dropdown-divider"></li>
+			<li>
+				<a class="dropdown-item" href="?logout">Déconnexion</a>
+			</li>
+	  </ul>
+	</div>
+</nav>
+<!-- ENDIF -->

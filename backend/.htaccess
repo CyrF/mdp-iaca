@@ -1,0 +1,7 @@
+# Interdit l'affichage du contenu
+Options -Indexes
+
+# Interdit l'accès au dossier GIT
+<DirectoryMatch .*\.(svn|git|hg|bzr|cvs)/.*>
+Require all denied
+</DirectoryMatch>
