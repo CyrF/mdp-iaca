@@ -14,26 +14,26 @@ utilise un serveur linux sur lequel est installé docker.
 
 _Extrait de la doc IACA: https://www.iacasoft.fr/outils/TCPComIACA/index.htm_
 
-Afin de ne pas permettre à n'importe quel serveur Web de lire les mots de passe de IACA ou de les modifier, vous devez indiquer dans la base de registre du serveur IACA l'adresse IP du ou des serveurs Web autorisés.
-
-* Si votre serveur est en 64 bits : Placez-vous dans HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Sayer\IACA
-
-Créez une valeur chaîne nommée IPMdpWeb et donnez comme valeur l'adresse IP du serveur Web à autoriser. Si vous avez plusieurs adresses à indiquer, séparez-les par un point-virgule. Ne mettez pas d'espace. Il est inutile de redémarrer le service IACA, la modification est prise en compte immédiatement.
-
-Si plus tard, vous ne voulez plus autoriser des serveurs Web, supprimez les adresses IP correspondantes.
+> Afin de ne pas permettre à n'importe quel serveur Web de lire les mots de passe de IACA ou de les modifier, vous devez indiquer dans la base de registre du serveur IACA l'adresse IP du ou des serveurs Web autorisés.
+>
+> * Si votre serveur est en 64 bits : Placez-vous dans HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Sayer\IACA
+>
+> Créez une valeur chaîne nommée IPMdpWeb et donnez comme valeur l'adresse IP du serveur Web à autoriser. Si vous avez plusieurs adresses à indiquer, séparez-les par un point-virgule. Ne mettez pas d'espace. Il est inutile de redémarrer le service IACA, la modification est prise en compte immédiatement.
+>
+> Si plus tard, vous ne voulez plus autoriser des serveurs Web, supprimez les adresses IP correspondantes.
 
 
 ### Configuration dans l'AD
 
 Dans l'AD, ajouter un compte utilisateur, nommé __________ , membre du groupe "opérateur de comptes".
 
-> todo: utiliser une delegation de droits plutot le groupe pour que pingcastle soit content.
+> todo: utiliser une delegation de droits plutot que le groupe pour que pingcastle soit content.
 
 Le renseigner dans le fichier de config, au champ `AD_UserGest`. Il sera utilisé par l'appli pour forcer le mot de passe a être changé a la prochaine connexion.
 
 ## Installation de l'application
 
-Télécharge l’appli avec l’outil git dans le dossier `/docker/mdp-iaca` et la démarrer :
+Télécharge l’appli avec l’outil `git clone` dans le dossier `/docker/mdp-iaca` et la démarrer :
 
 ```bash
 cd /docker/mdp-iaca
@@ -57,7 +57,7 @@ Arreter le container et supprimer le volume `mdp-iaca_db-data` contenant la conf
 docker compose down --volumes
 ```
 
-Autre option, éditer le fichier (mais pas pratique, c'est une array php sérialisée)
+~~Autre option, éditer le fichier~~ (mais pas pratique, c'est une array php sérialisée)
 
 ```bash 
 docker compose exec backend sh
