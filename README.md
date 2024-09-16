@@ -37,12 +37,33 @@ Télécharge l’appli avec l’outil git dans le dossier `/docker/mdp-iaca` et 
 
 ```bash
 cd /docker/mdp-iaca
+
+# crée les certificats SSL, 
+# sinon docker affiche l'erreur : invalid mount config, source path does not exist
+./create_cert.sh
+
+# démarre l'appli
 docker compose up -d
 ```
 
-> TODO a reécrire, les fichiers ont été déplacés
+En première installation, le fichier `/logs/user_config.php` n'existe pas. Il faut se connecter à l'interface web en `admin` avec le mdp `admin` pour le créer via la page de configuration.
 
-En première installation, le fichier `./inc/user_config.php` n'existe pas. Il faut se connecter à l'interface web en `admin` avec le mdp `admin` pour le créer via la page de configuration.
+En cas d'erreur de configuration, l'accès web peut être bloqué avec une erreur 504,
+avec dans les logs une erreur PHP ldap_bind() Unable to bind to server:
+
+Arreter le container et supprimer le volume `mdp-iaca_db-data` contenant la config 
+
+```bash
+docker compose down --volumes
+```
+
+Autre option, éditer le fichier (mais pas pratique, c'est une array php sérialisée)
+
+```bash 
+docker compose exec backend sh
+cd /logs
+vi user_config.php
+```
 
 
 ## Utilisation
