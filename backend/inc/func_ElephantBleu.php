@@ -368,7 +368,8 @@ function ldap_mdptemporaire ($utilisateur) {
 	if (Config::get ('Global_mode') == 'fake') { return; }
 	$ldap = new AnnuaireLDAP (
 		Config::get ('AD_Domain') . '\\' . Config::get ('AD_UserGest'),
-		Config::get ('AD_PassGest')
+		Config::get ('AD_PassGest'),
+		$Config->list_params_ad() // bugfix ArgumentCountError Too few arguments
 	);
 	$ldap->set_UserMustChangePassword ($utilisateur);
 }
