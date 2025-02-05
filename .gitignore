@@ -1,3 +1,5 @@
 nginx/certs/
 do_not_push/
 backend/test.php
+.env
+password.txt

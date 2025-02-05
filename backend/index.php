@@ -21,14 +21,14 @@
 require ('inc/tpl2.class.php');		// Moteur de template HTML minimaliste
 require ("inc/journal.class.php");		// journalisation d'activité
 include ("inc/func_ElephantBleu.php");	// session php, charge config, comm. avec iaca, divers.
-include ('inc/' . Config::get ('Global_mode') . 'ldap.class.php');	// interroge active directory
+include ('inc/' . getenv('DEPLOYMENT_MODE') . 'ldap.class.php');	// interroge active directory
 
 define ('ANONYME',	0);	// niveau d'acces
 define ('ELEVE',	1);
 define ('PROF',		2);
 define ('GURU',		4);
 
-my_session_start(Config::get ('Global_idletime'));	// definit aussi la page_par_defaut et l'autologout
+my_session_start(getenv('DECONNEXION_SESSION_INACTIVE'));	// definit aussi la page_par_defaut et l'autologout
 
 $h = new Modele_HTML();	// initialise le template
 
@@ -50,7 +50,7 @@ if (isset ($_GET['logout'])) {
 if (! empty ($_POST)) {
 	if  ((isset ($_POST['username']) && ! empty ($_POST['username']))
 		&& (isset ($_POST['password']) && ! empty ($_POST['password']))) {
-	$ldap = new AnnuaireLDAP ('', '', $Config->list_params_ad());
+	$ldap = new AnnuaireLDAP ('', '', list_params_ad());
 	$ev->creer ('Tentative d\'authentification de '. $_POST['username'] . '...', E_NOTICE);
 	$is_auth = $ldap->authentifier ($_POST['username'], $_POST['password']);
 	if ($is_auth !== false) {
@@ -82,13 +82,13 @@ if (! empty ($_POST)) {
 $ldap = new AnnuaireLDAP (
 	$_SESSION['user_id'],
 	$_SESSION['user_pass'],
-	$Config->list_params_ad() // ne pas mettre de virgule, pas compatible < 7.1
+	list_params_ad() // ne pas mettre de virgule, pas compatible < 7.1
 	);
 
 // donnees communes dans le template
 $navigation = array (
 	'TITRE' 			=> 'MdP Iaca',								// titre de la page a afficher
-	'TIMEOUT'	=> Config::get('Global_idletime') + 10,
+	'TIMEOUT'	=> getenv('DECONNEXION_SESSION_INACTIVE') + 10,
 	'BASE_URL'		=> (! empty ($_SERVER['REQUEST_SCHEME'])) ? $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] : dirname ($_SERVER['PHP_SELF']),
 	);
 $h->add_vars (array (
@@ -98,11 +98,11 @@ $h->add_vars (array (
 	'InclureJavascript'		=> $_SESSION['acces'],	// generer pwd, modifier affichage
 	'InclureAjax'			=> ($_SESSION['acces'] >= PROF),	// change le mdp d'un eleve.
 	'AfficherMenus'			=> ($_SESSION['acces'] >= PROF),	// les eleves ne verront pas le barre de menus.
-	'URLAideCreation'		=> Config::get ('Global_URLAideCreation'), // lien 'howto choose a pwd?'
+	'URLAideCreation'		=> getenv('URLAideCreation'), // lien 'howto choose a pwd?'
 	));
 
 // liste des pages autorisées qui seront affichés dans le menu.
-$h->add_vars ($Config->list_acl());
+$h->add_vars (list_acl());
 
 // quelle page doit etre affichee ?
 $_SESSION['page_courante'] = ($_SESSION['acces']) ? (($_GET['pg']) ?? $_SESSION['page_par_defaut']) : 'login';
@@ -149,7 +149,7 @@ switch ($_SESSION['page_courante']) {
 		/*
 		 *	=================		JOURNAL D'ACTIVITES		=================
 		 */
-		if ($Config->PuisJe ('AfficherMenuJournal')) {
+		if (PuisJe ('AfficherMenuJournal')) {
 			$ev->creer ('Acces à une page d\'administration (' . $_SESSION['page_courante'] . ')', E_PARSE);
 			// affiche le journal
 			$h->add_vars ('journal', $ev->get_events());
@@ -160,32 +160,6 @@ switch ($_SESSION['page_courante']) {
 		}
 		break;
 
-	case 'config' :
-		/*
-		 *	=================		CONFIGURATION DE L'APPLI		=================
-		 */
-		if ($Config->PuisJe ('AfficherMenuConfig')) {
-			$ev->creer ('Acces à une page d\'administration (' . $_SESSION['page_courante'] .')', E_PARSE);
-			if (isset ($_POST['SauvegardeConfig'])) {
-				foreach ($_POST as $k => $v) {
-					if ($k != 'SauvegardeConfig' && $Config->set ($k, $v)) {
-						$ev->creer ('Modif du paramètre '. $k, E_PARSE);
-					}
-				}
-				$Config->save_config();
-				$h->add_vars (array (
-					'msg_changement_RESULTAT'	=> 'success',
-					'msg_changement'					=> 'L\'ours brun a bien mis le chocolat dans le papier alu.',
-				));
-			}
-			// affiche tous les parametres
-			$h->add_vars ('liste_params', $Config->list_params());
-			$navigation['TITRE'] .= ' - ' . $_SESSION['page_courante'];
-		} else {
-			$ev->creer ('Acces non autorisé a ' . $_SESSION['page_courante'], E_ERROR);
-			exit();
-		}
-		break;
 
 	case 'profil' :
 		/*
@@ -232,7 +206,7 @@ switch ($_SESSION['page_courante']) {
 			// prepare les donnees a inserer dans le template
 			$h->add_vars (array (
 				'classe_courante'	=> htmlspecialchars ($classe),
-				'mdp_temporaire'	=> (Config::get ('Global_CocherMDPtmp')) ? 'checked' : 'unchecked',
+				'mdp_temporaire'	=> (getenv('CocherMDPtmp')) ? 'checked' : 'unchecked',
 				));
 			$h->add_vars ('eleves', $list);
 			$navigation['TITRE'] .= ' - eleves de ' . $classe;
@@ -254,7 +228,7 @@ switch ($_SESSION['page_courante']) {
 			$h->add_vars (array (
 				'cherche'		=> htmlspecialchars ($cherche),
 				'nombre'		=> count($list),
-				'mdp_temporaire'	=> (Config::get ('Global_CocherMDPtmp')) ? 'checked' : 'unchecked',
+				'mdp_temporaire'	=> (getenv('CocherMDPtmp')) ? 'checked' : 'unchecked',
 				));
 			$h->add_vars ('eleves', $list);
 			$navigation['TITRE'] .= ' - ' . $_SESSION['page_courante'];
@@ -268,7 +242,7 @@ switch ($_SESSION['page_courante']) {
 		/*
 		 *	=================		LISTE DES COMPTES NON ACTIFS	=================
 		 */
-		if ($Config->PuisJe ('AfficherMenuListeTemporaire')) {
+		if (PuisJe ('AfficherMenuListeTemporaire')) {
 			$list = $ldap->find_users (null, true);
 
 			// prepare les donnees a inserer dans le template
@@ -287,7 +261,7 @@ switch ($_SESSION['page_courante']) {
 		/*
 		 *	===============		LISTE DES COMPTES EXAMENS	===============
 		 */
-		if ($Config->PuisJe ('AfficherMenuCompteExams')) {
+		if (PuisJe ('AfficherMenuCompteExams')) {
 			$list = $ldap->find_users (null, true);
 
 			// prepare les donnees a inserer dans le template

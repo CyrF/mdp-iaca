@@ -22,7 +22,7 @@ session_start();
 
 require ("inc/journal.class.php");		// journalisation d'activité
 include ("inc/func_ElephantBleu.php");	// session php, charge config, comm. avec iaca, divers.
-include ('inc/' . Config::get ('Global_mode') . 'ldap.class.php');	// interroge active directory
+include ('inc/' . getenv('DEPLOYMENT_MODE') . 'ldap.class.php');	// interroge active directory
 
 define ('PROF', 2);	// niveau d'acces
 
@@ -35,7 +35,7 @@ $ev->set_donnee ('Utilisateur', (($_SESSION['user_name']) ?? 'nobody'));
 // si un utilisateur est connecté
 if (isset ($_SESSION['user_id']) && ! empty ($_SESSION['user_id'])) {
 	//autologout: verifie que la session n'est pas expiree
-	if (time() - $_SESSION['timestamp'] > Config::get ('Global_idletime')) {
+	if (time() - $_SESSION['timestamp'] > getenv('DECONNEXION_SESSION_INACTIVE')) {
 		$ev->creer ('AJAX - La session a expirée.', E_NOTICE);
 		session_destroy();
 		session_unset();

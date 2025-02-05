@@ -29,10 +29,35 @@ services:
       dockerfile: ./Dockerfile
       tags:
         - crpdl/phpiaca
+    env_file:
+      - .env
+    environment:
+      - DEPLOYMENT_MODE=ad
+      - CocherMDPtmp=${CocherMDPtmp}
+      - DECONNEXION_SESSION_INACTIVE=${DECONNEXION_SESSION_INACTIVE?300}
+      - URLAideCreation=${URLAideCreation}
+
+      - ACL_AfficherBoutonVoirTous=${ACL_AfficherBoutonVoirTous?NOBODY}
+      - ACL_AfficherMenuAide=${ACL_AfficherMenuAide?NOBODY}
+      - ACL_AfficherMenuCompteExams=${ACL_AfficherMenuCompteExams?NOBODY}
+      - ACL_AfficherMenuJournal=${ACL_AfficherMenuJournal?NOBODY}
+      - ACL_AfficherMenuListeTemporaire=${ACL_AfficherMenuListeTemporaire?NOBODY}
+      - ACL_AfficherMenuProfilProf=${ACL_AfficherMenuProfilProf?NOBODY}
+      - ACL_AfficherPassPhrase=${ACL_AfficherPassPhrase?NOBODY}
+
+      - AD_ServerIP=${AD_ServerIP?Undefined}
+      - AD_Chemin=${AD_Chemin?Undefined}
+      - AD_Domain=${AD_Domain?Undefined}
+      - AD_Grp_Cache=${AD_Grp_Cache?Undefined}
+      - AD_OU_ELEVES=${AD_OU_ELEVES?Undefined}
+      - AD_OU_EXAMEN=${AD_OU_EXAMEN?Undefined}
+      - AD_OU_GURU=${AD_OU_GURU?Undefined}
+      - AD_OU_PROF=${AD_OU_PROF?Undefined}
+      - AD_UserGest=${AD_UserGest?Undefined}
+      - AD_PassGest_FILE=/run/secrets/pw_operator
+    secrets:
+      - pw_operator
     volumes:
-      - type: bind
-        source: ./backend
-        target: /var/www/html
       - type: volume
         source: db-data
         target: /logs
@@ -47,3 +72,7 @@ services:
 volumes:
   db-data:
 
+secrets:
+ pw_operator:
+    file: ./password.txt
+    
