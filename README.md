@@ -25,44 +25,47 @@ _Extrait de la doc IACA: https://www.iacasoft.fr/outils/TCPComIACA/index.htm_
 
 ### Configuration dans l'AD
 
-Dans l'AD, ajouter un compte utilisateur, nommé __________ , membre du groupe "opérateur de comptes".
+Dans l'AD, ajouter un compte utilisateur, membre du groupe "opérateur de comptes". 
+Il sera uniquement utilisé pour forcer le mot de passe a être changé a la prochaine connexion.
 
 > todo: utiliser une delegation de droits plutot que le groupe pour que pingcastle soit content.
 
-Le renseigner dans le fichier de config, au champ `AD_UserGest`. Il sera utilisé par l'appli pour forcer le mot de passe a être changé a la prochaine connexion.
+Le renseigner dans le fichier de config, au champ `AD_UserGest`. 
+
 
 ## Installation de l'application
 
-Télécharge l’appli avec l’outil `git clone` dans le dossier `/docker/mdp-iaca` et la démarrer :
+Télécharge l’appli avec l’outil `git clone` dans le dossier `/docker/mdp-iaca` :
+ 
+```bash
+cd /docker
+git clone https://github.com/CyrF/mdp-iaca.git
+```
+
+Nettoyage et création du fichier de config :
 
 ```bash
 cd /docker/mdp-iaca
+rm compose.override.yaml  # a supprimer, definit des variables pour le développement
+chmod +x backend/test-config  # s'assure que ce script est bien executable
 
-# crée les certificats SSL, 
-# sinon docker affiche l'erreur : invalid mount config, source path does not exist
-./create_cert.sh
+# creer une config à partir du fichier d'exemple
+cp env.example .env
+nano .env
+docker compose config  # check du fichier de config, pour s'assurer qu'il lit correctement le .env
 
-# démarre l'appli
-docker compose up -d
+# copie le mot de passe de l'opérateur de comptes dans un fichier (docker secrets)
+echo mon_mot_de_passe > password.txt
 ```
 
-En première installation, le fichier `/logs/user_config.php` n'existe pas. Il faut se connecter à l'interface web en `admin` avec le mdp `admin` pour le créer via la page de configuration.
+Crée les certificats SSL autosigné avec la commande `./create_cert.sh`, ou suivre [Obtenir un certificat signé par la CA](./certificat_signature_CA.md). 
+Le container ne peut pas démarrer sans, docker affiche l'erreur : _invalid mount config, source path does not exist_
 
-En cas d'erreur de configuration, l'accès web peut être bloqué avec une erreur 504,
-avec dans les logs une erreur PHP ldap_bind() Unable to bind to server:
-
-Arreter le container et supprimer le volume `mdp-iaca_db-data` contenant la config 
+Démarrer l'appli :
 
 ```bash
-docker compose down --volumes
-```
-
-~~Autre option, éditer le fichier~~ (mais pas pratique, c'est une array php sérialisée)
-
-```bash 
-docker compose exec backend sh
-cd /logs
-vi user_config.php
+docker compose up -d  # Démarre les containers en arrière-plan
+docker compose exec -i backend ./test-config  # test des paramètres de connexion à l'ad
 ```
 
 
@@ -74,7 +77,7 @@ Il choisit sa classe, puis clique sur le bouton reset en face du nom de l'élèv
 Techniquement :
 - La connexion s’effectue vers le serveur Mdp avec un chiffrement SSL.
 - Le serveur Mdp obtient la liste d’élèves depuis le serveur IACA par le protocole LDAP.
-- Lors du changement de mot de passe, le serveur Mdp l’envoie au serveur IACA via la commande TcpCom.
+- Lors du changement de mot de passe, le serveur Mdp l’envoie au serveur IACA via son API "TcpCom".
 
 L'appli dispose de 3 niveaux d'accès (configurable):
 - un mode élève. Il peut seulement changer son mot de passe, avec une bafouille pour expliquer comment en choisir un, et aussi voir son identifiant ENI.

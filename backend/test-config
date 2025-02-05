@@ -1,0 +1,86 @@
+#!/usr/local/bin/php -f
+
+<?php
+
+if(! extension_loaded('ldap'))
+{
+	die('L\'extension LDAP n\'est pas installé/chargé.\n');    
+}
+
+/* -------------- FONCTION ------------- */
+
+define("TCP_LDAP", 389);
+define("TCP_LDAPS", 636);
+
+
+function input($message, $default=null)
+{
+    echo "-> $message ? ". (!empty($default) ? "[$default] " : "");
+    $reponse = trim(fgets(STDIN));
+    return empty($reponse) ? $default : $reponse;
+}
+
+function check_open_port($ip, $portname)
+{
+    $fp = @fSockOpen($ip, constant($portname), $errno, $errstr, 1);
+    if($fp)
+    {
+        echo "Le port $portname du serveur $ip est bien accessible.\n";
+        fclose($fp);
+        return true;
+    } 
+    echo "Le port $portname du serveur $ip est injoinable.\n";
+    return false;
+}
+
+function cherche_ou($ds, $baseDN, $filter)
+{
+    $result = ldap_search ($ds, $baseDN, $filter, array("ou", "cn"));
+    if ($result === false) {
+        ldap_get_option($ds, LDAP_OPT_DIAGNOSTIC_MESSAGE, $err);
+        die("ldap_search_error: " . ldap_error($ds) . "\nldap_diag: $err \n");
+    }
+    $entries = ldap_get_entries($ds, $result);
+    if ($entries === false) {
+        ldap_get_option($ds, LDAP_OPT_DIAGNOSTIC_MESSAGE, $err);
+        die("ldap_entries_error: " . ldap_error($ds) . "\nldap_diag: $err \n");
+    }
+    for ($i = 0; $i < $entries["count"]; $i++) {
+        echo " - " . $entries[$i]["dn"] . "\n";
+    }
+}
+
+/* -------------- Demande des infos pour pouvoir tester la connexion ------------- */
+
+$AD_ServerIP = input("Adresse IP du serveur DC1", getenv("AD_ServerIP")) or die("Réponse requise\n");
+$AD_Domain = input("Nom du domaine", getenv("AD_Domain")) or die("Réponse requise\n");
+$AD_BaseDN = input("Chemin de la racine LDAP", getenv("AD_Chemin") or "dc=$AD_Domain,dc=LOCAL") or die("Réponse requise\n");
+
+check_open_port($AD_ServerIP, "TCP_LDAP") or die();
+//check_open_port($AD_ServerIP, "TCP_LDAPS");
+
+echo "Pour rechercher dans l'annuaire, le mode anonyme ne suffit pas.\n";
+$AD_User = input("Un utilisateur du domaine", $AD_Domain . '\\' . getenv('AD_UserGest')) or die("Réponse requise\n");
+$AD_Pass = input("Son mot de passe", @file_get_contents( getenv('AD_PassGest_FILE'))) or die("Réponse requise\n");
+
+/* -------------- Tente une connexion et s'authentifie sur ldap ------------- */
+$ds = ldap_connect($AD_ServerIP) or die("Impossible de se connecter au serveur LDAP.");
+ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
+
+if (!ldap_bind($ds, $AD_User, $AD_Pass)){
+    ldap_get_option($ds, LDAP_OPT_DIAGNOSTIC_MESSAGE, $err);
+    die("ldap_error: " . ldap_error($ds) . "\nldap_diag:  $err \n");
+}
+
+/* -------------- recherche sur ldap ------------- */
+echo "Recherche du chemin de l'UO ELEVES :\n";
+cherche_ou($ds, $AD_BaseDN, "(&(OU=ELEVES)(objectClass=organizationalUnit))");
+
+echo "Recherche du chemin de l'UO PROFS :\n";
+cherche_ou($ds, $AD_BaseDN, "(&(OU=PROFS)(objectClass=organizationalUnit))");
+
+echo "Recherche du chemin de l'utilisateur admin1 :\n";
+cherche_ou($ds, $AD_BaseDN, "(&(objectClass=user)(cn=ADMIN1))");
+
+echo "\nSi pas de résultats ci-dessus, il y a probablement un souci de conf...";
