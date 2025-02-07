@@ -55,7 +55,7 @@ nano .env
 docker compose config  # check du fichier de config, pour s'assurer qu'il lit correctement le .env
 
 # copie le mot de passe de l'opérateur de comptes dans un fichier (docker secrets)
-echo mon_mot_de_passe > password.txt
+echo -n mon_mot_de_passe > password.txt
 ```
 
 Crée les certificats SSL autosigné avec la commande `./create_cert.sh`, ou suivre [Obtenir un certificat signé par la CA](./certificat_signature_CA.md). 
@@ -66,6 +66,16 @@ Démarrer l'appli :
 ```bash
 docker compose up -d  # Démarre les containers en arrière-plan
 docker compose exec -i backend ./test-config  # test des paramètres de connexion à l'ad
+```
+
+Mise à jour :
+
+```bash
+cd /docker/mdp-iaca
+git pull
+# supprimer à nouveau le fichier compose.override.yaml
+docker compose down
+docker compose up -d --build  # force la recréation du container
 ```
 
 

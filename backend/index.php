@@ -114,7 +114,7 @@ switch ($_SESSION['page_courante']) {
 		 */
 
 		if ($_SESSION['acces'] >= PROF) {
-			$liste_classes = array();
+			$liste_classes = array("2"=>[], "1"=>[], "T"=>[], "A"=>[]);
 
 			foreach ($ldap->get_classes() as $entry) {
 				// certaines classes sont nommées _1FOOBAR : supprime le '_'

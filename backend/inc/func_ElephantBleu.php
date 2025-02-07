@@ -265,7 +265,7 @@ function ldap_mdptemporaire ($utilisateur) {
 	if (getenv('DEPLOYMENT_MODE') == 'fake') { return; }
 	$ldap = new AnnuaireLDAP (
 		getenv('AD_Domain') . '\\' . getenv('AD_UserGest'),
-		file_get_contents( getenv('AD_PassGest_FILE')),
+		rtrim(file_get_contents( getenv('AD_PassGest_FILE'))),
 		list_params_ad() // bugfix ArgumentCountError Too few arguments
 	);
 	$ldap->set_UserMustChangePassword ($utilisateur);
