@@ -65,9 +65,9 @@ class AnnuaireLDAP {
 				$this->bound = $r;
 			} catch (RuntimeException $e){
 				if (ldap_get_option($this->ds, LDAP_OPT_DIAGNOSTIC_MESSAGE, $extended_error)) {
-					echo "Error Binding to LDAP: $extended_error<br>";
+					error_log("[MDPIACA] Error Binding($auth) to LDAP: $extended_error");
 				}
-				echo "ldap_error: " . ldap_error($this->ds) . '<br>';
+				error_log("[MDPIACA] ldap_error: " . ldap_error($this->ds));
 				$this->bound = false;
 			}
 		}
@@ -117,8 +117,14 @@ class AnnuaireLDAP {
 			foreach ($this->ldap->OU_GURU as $auth) {
 				if (strpos ($data, $auth) !== false) {$Autorized = GURU;}
 			}
+			
+			error_log("[MDPIACA] Authenticated as: $data");
 			return $Autorized;
 		} else {
+			if (ldap_get_option($this->ds, LDAP_OPT_DIAGNOSTIC_MESSAGE, $extended_error)) {
+				error_log("[MDPIACA] Error authentify to LDAP: $extended_error");
+			}
+			error_log("[MDPIACA] ldap_error: " . ldap_error($this->ds));		
 			return false;
 		}
 	}
@@ -163,8 +169,8 @@ class AnnuaireLDAP {
 			$justthese);
 
 		if (!($lsclass)) {
-			echo "<p>Error:" . ldap_error($this->ds) . "</p>";
-			echo "<p>Error:" . ldap_err2str(ldap_errno($this->ds)) . "</p>";
+			error_log("[MDPIACA] error listing users:" . ldap_error($this->ds));
+			error_log("[MDPIACA] error listing users:" . ldap_err2str(ldap_errno($this->ds)));
 			die;
 		}
 
@@ -219,8 +225,8 @@ class AnnuaireLDAP {
 		);
 
 		if (! ($lsclass)) {
-			echo "<p>Error:" . ldap_error ($this->ds) . "</p>";
-			echo "<p>Error:" . ldap_err2str (ldap_errno ($this->ds)) . "</p>";
+			error_log("[MDPIACA] error searching users:" . ldap_error ($this->ds));
+			error_log("[MDPIACA] error searching users:" . ldap_err2str (ldap_errno ($this->ds)));
 			die;
 		}
 
