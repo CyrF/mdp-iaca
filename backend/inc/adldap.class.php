@@ -35,7 +35,7 @@ class AnnuaireLDAP {
 
 	function __construct($user, $pass, $Config) {
 		$this->ldap			= $Config;
-		$this->ldap_user	= $this->ldap->Domain . '\\' . $user;
+		$this->ldap_user	= ldap_escape($user, '', LDAP_ESCAPE_DN) . '@' . $this->ldap->Domain;
 		$this->ldap_pass	= $pass;
 		$this->ds			= false;
 		$this->bound		= false;
@@ -95,7 +95,7 @@ class AnnuaireLDAP {
 
 		// tente une connection a l'ad...
 			$bind = @ldap_bind ($this->ds,
-				$this->ldap->Domain ."\\". ldap_escape ($username, '', LDAP_ESCAPE_DN),
+				ldap_escape ($username, '', LDAP_ESCAPE_DN) . '@' . $this->ldap->Domain,
 				$password
 			);
 		if ($bind) {
