@@ -4,13 +4,30 @@
 
 if(! extension_loaded('ldap'))
 {
-	die('L\'extension LDAP n\'est pas installé/chargé.\n');    
+	die("L'extension LDAP n'est pas installé/chargé.\n");    
 }
 
-/* -------------- FONCTION ------------- */
+/* -------------- CONSTANTES ------------- */
 
 define("TCP_LDAP", 389);
 define("TCP_LDAPS", 636);
+
+// https://ldapwiki.com/wiki/Wiki.jsp?page=Common Active Directory Bind Errors
+define("_LDAP_DATA_ERROR_CODE", array(
+    "525" => "Entry does not exist.",
+    "52e" => "Password or credential is invalid.",
+    "52f" => "Account restrictions (blank password, policy...).",
+    "530" => "Logon time restriction.",
+    "531" => "Not allowed to log on this computer.",
+    "532" => "Password has expired.",
+    "533" => "Account administratively disabled.",
+    "568" => "Too many security identifier (group-AD).",
+    "701" => "Account expired.",
+    "773" => "Password must be changed before logging on.",
+    "775" => "Intruder detection, account locked out.",
+));
+
+/* -------------- FONCTION ------------- */
 
 
 function input($message, $default=null)
@@ -20,59 +37,100 @@ function input($message, $default=null)
     return empty($reponse) ? $default : $reponse;
 }
 
-function check_open_port($ip, $portname)
+
+function check_open_port($host, $portname)
 {
+    $ip = str_replace("ldaps://", "", $host);
     $fp = @fSockOpen($ip, constant($portname), $errno, $errstr, 1);
     if($fp)
     {
-        echo "Le port $portname du serveur $ip est bien accessible.\n";
+        echo "\tLe port $portname du serveur $ip est bien accessible.\n";
         fclose($fp);
         return true;
     } 
-    echo "Le port $portname du serveur $ip est injoinable.\n";
+    echo "\tLe port $portname du serveur $ip est injoinable.\n";
     return false;
 }
 
+
 function cherche_ou($ds, $baseDN, $filter)
 {
-    $result = ldap_search ($ds, $baseDN, $filter, array("ou", "cn"));
+    $result = @ldap_search ($ds, $baseDN, $filter, array("ou", "cn"));
     if ($result === false) {
-        ldap_get_option($ds, LDAP_OPT_DIAGNOSTIC_MESSAGE, $err);
-        die("ldap_search_error: " . ldap_error($ds) . "\nldap_diag: $err \n");
+        die("ldap_search_error: " . get_ldap_error_msg($ds) . "\n");
     }
-    $entries = ldap_get_entries($ds, $result);
+    $entries = @ldap_get_entries($ds, $result);
     if ($entries === false) {
-        ldap_get_option($ds, LDAP_OPT_DIAGNOSTIC_MESSAGE, $err);
-        die("ldap_entries_error: " . ldap_error($ds) . "\nldap_diag: $err \n");
+        die("ldap_entries_error: " . get_ldap_error_msg($ds) . "\n");
     }
     for ($i = 0; $i < $entries["count"]; $i++) {
-        echo " - " . $entries[$i]["dn"] . "\n";
+        echo "\t- " . $entries[$i]["dn"] . "\n";
     }
+}
+
+
+function get_ldap_error_msg($ds)
+{
+    ldap_get_option($ds, LDAP_OPT_DIAGNOSTIC_MESSAGE, $ldap_opt_diag_msg);
+    $message_erreur = "\t" . ldap_error($ds) . "\n";
+
+    foreach(explode(', ', $ldap_opt_diag_msg) as $chunk)
+    {        
+        if (substr($chunk, 0, 4) == 'data') {
+            $code = trim(substr($chunk, 4));
+            if (array_key_exists($code, _LDAP_DATA_ERROR_CODE))
+            {
+                $message_erreur .= "\t" . $chunk . ": ". _LDAP_DATA_ERROR_CODE[$code] . "\n";
+                continue;
+            }
+        }                
+        $message_erreur .= "\t" . $chunk . "\n";        
+    }
+
+    return $message_erreur;
 }
 
 /* -------------- Demande des infos pour pouvoir tester la connexion ------------- */
 
 $AD_ServerIP = input("Adresse IP du serveur DC1", getenv("AD_ServerIP")) or die("Réponse requise\n");
-$AD_Domain = input("Nom du domaine", getenv("AD_Domain")) or die("Réponse requise\n");
-$AD_BaseDN = input("Chemin de la racine LDAP", getenv("AD_Chemin")) or die("Réponse requise\n");
 
+/* -------------- verifie si les serveur est joinable ------------- */
 check_open_port($AD_ServerIP, "TCP_LDAP") or die();
-//check_open_port($AD_ServerIP, "TCP_LDAPS");
+check_open_port($AD_ServerIP, "TCP_LDAPS");
+//TODO: check certificat
 
-echo "Pour rechercher dans l'annuaire, le mode anonyme ne suffit pas.\n";
-$AD_User = input("Un utilisateur du domaine", $AD_Domain . '\\' . getenv('AD_UserGest')) or die("Réponse requise\n");
-$pass = (getenv('AD_PassGest_FILE') and file_exists(getenv('AD_PassGest_FILE'))) ? rtrim(@file_get_contents( getenv('AD_PassGest_FILE'))) : "";
-$AD_Pass = input("Son mot de passe", $pass) or die("Réponse requise\n");
 
-/* -------------- Tente une connexion et s'authentifie sur ldap ------------- */
+/* -------------- Tente une connexion à l'ad ------------- */
 $ds = ldap_connect($AD_ServerIP) or die("Impossible de se connecter au serveur LDAP.\n");
 ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
 ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
 
-if (!ldap_bind($ds, $AD_User, $AD_Pass)){
-    ldap_get_option($ds, LDAP_OPT_DIAGNOSTIC_MESSAGE, $err);
-    die("ldap_error: " . ldap_error($ds) . "\nldap_diag:  $err \n");
+if (!ldap_bind($ds)){
+    die("ldap_anonymous_bind_error: " . get_ldap_error_msg($ds) . "\n");
 }
+
+/* -------------- lit la racine LDAP directement dans l'ad --------- */
+$sr = ldap_read($ds, "", "(objectClass=*)");
+$info = ldap_get_entries($ds, $sr);
+if ($info !== false)
+{
+    echo "\tRacine (lu dans l'active directory): " . $info[0]["rootdomainnamingcontext"][0];
+}
+$AD_BaseDN = input("Chemin de la racine LDAP", getenv("AD_Chemin")) or die("Réponse requise\n");
+
+$AD_Domain = input("Nom du domaine", getenv("AD_Domain")) or die("Réponse requise\n");
+
+echo "\nPour rechercher dans l'annuaire, le mode anonyme ne suffit pas.\n";
+$AD_User = input("Un utilisateur du domaine", $AD_Domain . '\\' . getenv('AD_UserGest')) or die("Réponse requise\n");
+$pass = (getenv('AD_PassGest_FILE') and file_exists(getenv('AD_PassGest_FILE'))) ? rtrim(@file_get_contents( getenv('AD_PassGest_FILE'))) : "";
+$AD_Pass = input("Son mot de passe", $pass) or die("Réponse requise\n");
+
+
+/* -------------- s'authentifie sur ldap ------------- */
+if (!ldap_bind($ds, $AD_User, $AD_Pass)){
+    die("ldap_bind_error: " . get_ldap_error_msg($ds) . "\n");
+}
+// TODO: essayer d'autre mode de connexion ntlm, kerberos, sasl...
 
 /* -------------- recherche sur ldap ------------- */
 echo "Recherche du chemin de l'UO ELEVES :\n";
