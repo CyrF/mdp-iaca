@@ -190,7 +190,7 @@ function list_acl() {
 function iaca_setmdp ($utilisateur, $mdp) {
 	if (getenv('DEPLOYMENT_MODE') == 'fake') { return 'OK'; }
 	$REPONSE = "";
-	$fp = fsockopen (Config::get ('AD_ServerIP'), 5016, $numerr, $strerr, 1);
+	$fp = fsockopen (getenv ('AD_ServerIP'), 5016, $numerr, $strerr, 1);
 	if ($fp) {
 		fputs ($fp,"NU=$utilisateur|MDP=$mdp");
 		$REPONSE = fgets ($fp,1500);
@@ -218,7 +218,7 @@ function iaca_hidemdp ($utilisateur) {
 	if (getenv('DEPLOYMENT_MODE') == 'fake') { return 'OK'; }
 	$REPONSE = "";
 	$fp = stream_socket_client (
-		'tcp://' . Config::get ('AD_ServerIP') . ':5016',
+		'tcp://' . getenv('AD_ServerIP') . ':5016',
 		$numerr, $strerr, 1
 	);
 	if ($fp) {
@@ -243,7 +243,7 @@ function iaca_hidemdp ($utilisateur) {
 function iaca_getmdp ($utilisateur) {
 	if (getenv('DEPLOYMENT_MODE') == 'fake') { return Creer_Pass (8); }
 	$REPONSE = "";
-	$fp = fsockopen (Config::get ('AD_ServerIP'), 5016, $numerr, $strerr, 1);
+	$fp = fsockopen (getenv('AD_ServerIP'), 5016, $numerr, $strerr, 1);
 	if ($fp) {
 		fputs ($fp, "NU=$utilisateur|GETMDP");
 		$REPONSE = fgets($fp, 64);
