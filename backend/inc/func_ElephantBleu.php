@@ -264,7 +264,7 @@ function iaca_getmdp ($utilisateur) {
 function ldap_mdptemporaire ($utilisateur) {
 	if (getenv('DEPLOYMENT_MODE') == 'fake') { return; }
 	$ldap = new AnnuaireLDAP (
-		getenv('AD_Domain') . '\\' . getenv('AD_UserGest'),
+		getenv('AD_UserGest'),
 		rtrim(file_get_contents( getenv('AD_PassGest_FILE'))),
 		list_params_ad() // bugfix ArgumentCountError Too few arguments
 	);
