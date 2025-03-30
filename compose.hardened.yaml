@@ -1,0 +1,87 @@
+# Securise les containers suivant les precos ANSSI
+# https://cyber.gouv.fr/publications/recommandations-de-securite-relatives-au-deploiement-de-conteneurs-docker
+
+# éléments communs
+x-hardening: &hardening
+  privileged: !reset null # (R1) Isoler les systèmes sensibles
+  ipc: !reset null # (R6) Dédier des namespaces IPC
+  pid: !reset null # (R6) Dédier des namespaces PID
+  uts: !reset null # (R6) Dédier des namespaces UTC
+  security_opt:
+    # (R7) Restrict a Container's Syscalls
+    # https://kubernetes.io/docs/tutorials/security/seccomp/
+    #- seccomp: profile.json # exemple audit: {"defaultAction": "SCMP_ACT_LOG"}
+    - no-new-privileges:true
+  cap_drop:
+    # (R8) Interdire l’utilisation des capabilities
+    - ALL
+  cgroup_parent: !reset null # (R9) Dédier les Control groups pour chaque conteneur
+  read_only: true # (R12) Restreindre en lecture le système de fichiers racine
+  #  storage_opt: # (R12-) Limiter l’écriture de l’espace de stockage  
+  #    size: '10M' # supported only for overlay over xfs with 'pquota' mount option
+
+services:
+  nginx:
+    <<: *hardening
+
+    cap_add:
+      # (R8-) Limiter l’utilisation des capabilities
+      # https://www.redhat.com/en/blog/secure-your-containers-one-weird-trick
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+
+    mem_limit: ${MEMORY_LIMIT:-100M} # (R10) Limite de mémoire pour le mode standalone
+    cpus: ${CPU_SHARE:-0.25} # (R11) Limiter l’utilisation du CPU
+    deploy:
+      resources:
+        limits:
+          memory: ${MEMORY_LIMIT:-100M} # (R10) Limite de mémoire pour le mode Swarm
+          cpus: ${CPU_SHARE:-0.25} # (R11) Limiter l’utilisation du CPU
+
+    volumes:
+      # (R13) Créer un système de stockage pour les données non persistantes
+      - type: tmpfs
+        target: /var/run # nginx ecrit dans son fichier nginx.pid
+        tmpfs:
+          size: 2M
+      - type: tmpfs
+        target: /var/cache/nginx
+        tmpfs:
+          size: 20M
+      # (R14) Créer un système de stockage pour les données persistantes
+
+    networks:
+      - public
+      - private
+
+    ports: !override
+      - "443:4343"
+
+  backend:
+    <<: *hardening
+
+    mem_limit: ${MEMORY_LIMIT:-100M} # (R10) Limite de mémoire pour le mode standalone
+    cpus: ${CPU_SHARE:-0.25} # (R11) Limiter l’utilisation du CPU
+    deploy:
+      resources:
+        limits:
+          memory: ${MEMORY_LIMIT:-100M} # (R10) Limite de mémoire pour le mode Swarm
+          cpus: ${CPU_SHARE:-0.25} # (R11) Limiter l’utilisation du CPU
+
+    volumes:
+      - type: tmpfs
+        target: /tmp # pour le stockage des session php
+        tmpfs:
+          size: 10M
+
+    networks:
+      - private
+
+networks:
+  # (R5) Créer un réseau dédié pour chaque connexion
+  public: # port exposé à l'extérieur
+  private:
+    # communication entre services
+    # internal: true # desactivé, php a besoin d'acceder au domaine

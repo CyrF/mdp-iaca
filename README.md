@@ -67,6 +67,11 @@ Démarrer l'appli :
 docker compose up -d  # Démarre les containers en arrière-plan
 docker compose exec -i backend ./test-config  # test des paramètres de connexion à l'ad
 ```
+> Note: pour utiliser la conf sécurisée, il faut modifier légèrement la commande de démarrage :
+
+```bash
+docker compose -f compose.yaml -f compose.hardened.yaml up -d
+```
 
 Mise à jour :
 
