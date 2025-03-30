@@ -3,9 +3,9 @@ updates:
   - package-ecosystem: "docker-compose"
     directory: "/"
     schedule:
-      interval: "montly"
+      interval: "monthly"
       
   - package-ecosystem: "docker"
     directory: "/backend/"
     schedule:
-      interval: "montly"
+      interval: "monthly"
