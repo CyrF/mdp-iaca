@@ -41,6 +41,8 @@ services:  # Modif dans le container PHP
       - LDAPTLS_REQCERT=require
     secrets:
       - ldaps.cer
+#    dns:
+#      - 192.168.254.1
 
 secrets:  # Monte le certificat pour qu'il soit accessible dans le conteneur
   ldaps.cer:
@@ -59,6 +61,6 @@ docker compose -f compose.yaml -f compose.ldaps.yaml up -d
 - [x] "getaddrinfo failed Name does not resolve" : ajout dns
 - [x] "x509 certificate routines::no certificate or crl found" : conversion de format
 - [x] test de connexion OK en modifiant le script test-config
-- [x] connexion en Web OK : le mode anonyme ne semble plus possible ? 
-- [ ] Error Binding to LDAP: 80090308: LdapErr: DSID-0C09050E, comment: AcceptSecurityContext error, data 532, v4f7c
-
+- [x] connexion en Web OK : ~~le mode anonyme ne semble plus possible ? ~~
+- [x] ~~Error Binding to LDAP: 80090308: LdapErr: DSID-0C09050E, comment: AcceptSecurityContext error, data 532, v4f7c~~ faux probleme, le compte utilisé était expiré
+- [ ] echec lors du changement de mot de passe : _fsockopen(): Unable to connect to ldaps://lab-dc01.labo.local:5016_ il s'attends à une ip, code a modifier...
