@@ -46,7 +46,6 @@ Nettoyage et création du fichier de config :
 
 ```bash
 cd /docker/mdp-iaca
-rm compose.override.yaml  # a supprimer, definit des variables pour le développement
 chmod +x backend/test-config  # s'assure que ce script est bien executable
 
 # creer une config à partir du fichier d'exemple
@@ -59,7 +58,8 @@ echo -n mon_mot_de_passe > password.txt
 ```
 
 Crée les certificats SSL autosigné avec la commande `./create_cert.sh`, ou suivre [Obtenir un certificat signé par la CA](./certificat_signature_CA.md). 
-Le container ne peut pas démarrer sans, docker affiche l'erreur : _invalid mount config, source path does not exist_
+
+> Le container ne peut pas démarrer sans, docker affiche l'erreur : _invalid mount config, source path does not exist_
 
 Démarrer l'appli :
 
@@ -67,22 +67,32 @@ Démarrer l'appli :
 docker compose up -d  # Démarre les containers en arrière-plan
 docker compose exec -i backend ./test-config  # test des paramètres de connexion à l'ad
 ```
-> Note: pour utiliser la conf sécurisée et/ou [LDAPS](./LDAP_over_SSL.md), il faut modifier légèrement la commande de démarrage :
+Pour utiliser la conf sécurisée et/ou [LDAPS](./LDAP_over_SSL.md), il faut modifier légèrement la commande de démarrage :
 
 ```bash
 docker compose -f compose.yaml -f compose.hardened.yaml up -d
 ```
 
-Mise à jour :
+> Eviter de modifier les fichiers fournis, ils sont écrasés en cas de mise à jour. 
+
+Créer un fichier `compose.override.yaml` si besoin. 
+La commande  `docker compose config` affiche le résultat des fusions/écrasement/imports.
+
+```yaml
+include:  # pour ne pas retenir la cmd au-dessus, par ex.
+  - compose.ldaps.yaml
+  - ...
+```
+
+## Mise à jour
 
 ```bash
 cd /docker/mdp-iaca
 git pull
-# supprimer à nouveau le fichier compose.override.yaml
-docker compose down
 docker compose up -d --build  # force la recréation du container
 ```
 
+Attention : Si les networks ont été modifiés, ils faut les supprimer manuellement.
 
 ## Utilisation
 
