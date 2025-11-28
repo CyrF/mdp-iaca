@@ -1,4 +1,4 @@
-FROM php:8.3-fpm-alpine3.21
+FROM php:8.4-fpm-alpine3.21
 
 # fix car "docker-php-ext-install ldap" ne fonctionne pas
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
