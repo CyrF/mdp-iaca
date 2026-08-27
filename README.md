@@ -7,7 +7,7 @@ _Serveur offrant une interface web permettant la réinitialisation du mot de pas
 
 ## Ressources matérielles
 
-utilise un serveur linux sur lequel est installé docker.
+utilise un [serveur linux sur lequel est installé docker](./install_docker_on_debian.md).
 
 
 ## Configuration du serveur IACA
