@@ -35,7 +35,7 @@ $ev->set_donnee ('Utilisateur', (($_SESSION['user_name']) ?? 'nobody'));
 // si un utilisateur est connecté
 if (isset ($_SESSION['user_id']) && ! empty ($_SESSION['user_id'])) {
 	//autologout: verifie que la session n'est pas expiree
-	if (time() - $_SESSION['timestamp'] > getenv('DECONNEXION_SESSION_INACTIVE')) {
+	if (time() - $_SESSION['timestamp'] - 10 > getenv('DECONNEXION_SESSION_INACTIVE')) {
 		$ev->creer ('AJAX - La session a expirée.', E_NOTICE);
 		session_destroy();
 		session_unset();
