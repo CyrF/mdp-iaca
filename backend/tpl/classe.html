@@ -59,9 +59,9 @@
 						data-bs-uid='{b64_eleves.IDENTIFIANT}'
 						data-bs-name='{b64_eleves.NOMCOMPLET}'>
 					<!-- IF_DEFINED eleves.LOGONCOUNT -->
-							Réinitialiser avec un nouveau mot de passe
+							<i class="fa fa-solid fa-redo"></i> Réinitialiser avec un nouveau mot de passe
 					<!-- ELSE -->
-							Le compte n'a pas été utilisé
+							<i class="fa fa-solid fa-plus"></i> Le compte n'a pas été utilisé
 					<!-- ENDIF -->
 					</span>
 					<!-- IF_DEFINED eleves.PWDLASTSET -->
@@ -79,4 +79,4 @@
 	</div>
 </div>
 
-<script src="{navigation.BASE_URL}/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="{navigation.BASE_URL}/vendor/bootstrap/{navigation.BOOTSTRAP_VERSION}/bootstrap.bundle.min.js"></script>

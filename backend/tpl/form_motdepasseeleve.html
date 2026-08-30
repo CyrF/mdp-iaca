@@ -60,7 +60,7 @@
 						<li><hr class="dropdown-divider"></li>
 						<li>
 							<a class="dropdown-item" href="{URLAideCreation}" target="blank">
-								<i class="fa fa-share-square-o"></i>
+								<i class="fa-solid fa-arrow-up-right-from-square"></i>
 								Aide pour la création de mots de passes
 							</a>
 						</li>
@@ -74,7 +74,7 @@
 					</div>
 					<span class="input-group-text"
 						onclick="togglePasswordVisibility('floatingPass', 'btnEyePass')">
-						<i id="btnEyePass" class="fa fa-eye-slash"></i>
+						<i id="btnEyePass" class="fa fa-solid fa-eye-slash"></i>
 					</span>
 				</div>
 
@@ -102,12 +102,17 @@
 </div>
 
 <script>
+	document.addEventListener('DOMContentLoaded', function () {
 /**
  * prérempli la fenetre modal avec les bonnes valeurs
  *
  *	@return null
  */
 var MotdePasseModal = document.getElementById('MotdePasseModal')
+
+ // console.log('Modal Element:', MotdePasseModal);
+  console.log('Bootstrap Instance:', bootstrap.Modal.getOrCreateInstance(MotdePasseModal));
+
 MotdePasseModal.addEventListener('show.bs.modal', function (event) {
   // Button that triggered the modal
   var button = event.relatedTarget
@@ -137,5 +142,6 @@ input.addEventListener("keyup", function(event) {
     // Trigger the button element with a click
     document.getElementById("modal-save").click();
   }
+});
 });
 </script>

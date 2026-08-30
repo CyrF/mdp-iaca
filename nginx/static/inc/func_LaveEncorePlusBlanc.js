@@ -21,7 +21,7 @@ function ajax_getMdp (elem) {
 	} else {
 		// affiche un spinner
 		btn_pwd.disabled = true
-		btn_pwd.className = ''
+		btn_pwd.className = 'btn btn-sm'
 		btn_pwd.innerHTML = '<img src="./runcat2.gif" width="76" height="32">&nbsp;travail en cours...';
 		// requete AJAX
 		RequestVars = {
@@ -68,7 +68,7 @@ function ajax_setMdp() {
 	if ((modalBodyPw.value.length >= 5) && (!btn_pwd.disabled)) {
 		// affiche un spinner
 		btn_pwd.disabled = true
-		btn_pwd.className = ''
+		btn_pwd.className = 'btn btn-sm'
 		btn_pwd.removeAttribute ('data-bs-toggle');
 		btn_pwd.innerHTML = '<img src="./runcat2.gif" width="76" height="32">&nbsp;Travail en cours...';
 		// requete AJAX

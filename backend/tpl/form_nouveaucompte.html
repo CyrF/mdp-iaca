@@ -54,7 +54,7 @@
 						<li><hr class="dropdown-divider"></li>
 						<li>
 							<a class="dropdown-item" href="{URLAideCreation}" target="blank">
-								<i class="fa fa-share-square-o"></i>
+								<i class="fa-solid fa-arrow-up-right-from-square"></i>
 								Aide pour la création de mots de passes
 							</a>
 						</li>
@@ -68,7 +68,7 @@
 					</div>
 					<span class="input-group-text"
 						onclick="togglePasswordVisibility('floatingPass', 'btnEyePass')">
-						<i id="btnEyePass" class="fa fa-eye-slash"></i>
+						<i id="btnEyePass" class="fa fa-solid fa-eye-slash"></i>
 					</span>
 				</div>
       </div>
@@ -83,26 +83,29 @@
 </div>
 
 <script>
+	document.addEventListener('DOMContentLoaded', function () {
 /**
  * prérempli la fenetre modal avec les bonnes valeurs
  *
  *	@return null
  */
 var NewAccountModal = document.getElementById('NewAccountModal')
+
+  console.log('Bootstrap Instance:', bootstrap.Modal.getOrCreateInstance(NewAccountModal));
+
 NewAccountModal.addEventListener('show.bs.modal', function (event) {
   // Button that triggered the modal
   var button = event.relatedTarget
   // Extract info from data-bs-* attributes
-  var NomComplet = button.getAttribute('data-bs-name')
-  var Identifiant = button.getAttribute('data-bs-uid')
+  //var NomComplet = button.getAttribute('data-bs-name')
+  //var Identifiant = button.getAttribute('data-bs-uid')
   // Update the modal's content.
   
-  var modalBodyId = NewAccountModal.querySelector('.modal-body #floatingInput')
-  var modalBodyPw = NewAccountModal.querySelector('.modal-body #floatingPass')
-
+  //var modalBodyId = NewAccountModal.querySelector('.modal-body #floatingInput')
+  //var modalBodyPw = NewAccountModal.querySelector('.modal-body #floatingPass')
   
-  modalBodyId.value = atob(Identifiant)
-  modalBodyPw.value = ''
+  //modalBodyId.value = atob(Identifiant)
+  //modalBodyPw.value = ''
 })
 
 /**
@@ -119,4 +122,5 @@ input.addEventListener("keyup", function(event) {
     document.getElementById("modal-save").click();
   }
 });
+	});
 </script>

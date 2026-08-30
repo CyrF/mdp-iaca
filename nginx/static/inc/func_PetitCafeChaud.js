@@ -179,11 +179,11 @@ function togglePasswordVisibility( passId, Eye = false, force = false ) {
 	var p = document.getElementById( passId );
 	if (p.type === "password") {
 		p.type = "text";
-		if (Eye) {document.getElementById(Eye).className = 'fa fa-eye-slash';}
+		if (Eye) {document.getElementById(Eye).className = 'fa fa-solid fa-eye-slash';}
 	} else {
 		if (!force) {
 		p.type = "password";
-		if (Eye) {document.getElementById(Eye).className = 'fa fa-eye';}
+		if (Eye) {document.getElementById(Eye).className = 'fa fa-solid fa-eye';}
 		}
 	}
 }

@@ -89,6 +89,10 @@ $ldap = new AnnuaireLDAP (
 $navigation = array (
 	'TITRE' 			=> 'MdP Iaca',								// titre de la page a afficher
 	'TIMEOUT'	=> getenv('DECONNEXION_SESSION_INACTIVE') + 10,
+	// centralise les versions ici
+	'BOOTSTRAP_VERSION'	=> 'v5.3.8',
+	'FONTAWESOME_VERSION'	=> 'v7.3.1/css',
+	'TIMEOUT'	=> getenv('DECONNEXION_SESSION_INACTIVE') + 10,
 	'BASE_URL'		=> (! empty ($_SERVER['REQUEST_SCHEME'])) ? $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] : dirname ($_SERVER['PHP_SELF']),
 	);
 $h->add_vars (array (
