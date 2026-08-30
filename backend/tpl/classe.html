@@ -51,19 +51,19 @@
 
 				<td class="vignet-td">
 					<span class="d-none d-print-inline">Mot de passe : </span>
-					<span type='button' class='btn btn-outline-success btn-sm d-print-none'
+					<button type='button' class='btn btn-outline-success btn-sm d-print-none'
 						id='pwd_{b64_eleves.IDENTIFIANT}' name='motdepasse'
-						onclick='ajax_getMdp(this.id);'
 						data-bs-toggle='modal'
 						data-bs-target='#MotdePasseModal'
 						data-bs-uid='{b64_eleves.IDENTIFIANT}'
 						data-bs-name='{b64_eleves.NOMCOMPLET}'>
+						<!-- onclick='ajax_getMdp(this.id); // inutilisable' -->
 					<!-- IF_DEFINED eleves.LOGONCOUNT -->
 							<i class="fa fa-solid fa-redo"></i> Réinitialiser avec un nouveau mot de passe
 					<!-- ELSE -->
 							<i class="fa fa-solid fa-plus"></i> Le compte n'a pas été utilisé
 					<!-- ENDIF -->
-					</span>
+					</button>
 					<!-- IF_DEFINED eleves.PWDLASTSET -->
 					<!-- ELSE -->
 					&nbsp;

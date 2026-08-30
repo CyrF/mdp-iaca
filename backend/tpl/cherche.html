@@ -49,9 +49,9 @@
 
 				<td class="vignet-td">
 					<span class="d-none d-print-inline">Mot de passe : </span>
-					<span type='button' class='btn btn-outline-success btn-sm d-print-none'
-						id='pwd_{b64_eleves.IDENTIFIANT}' name='motdepasse'
-						donclick='ajax_getMdp(this.id);'
+					<button type='button' class='btn btn-outline-success btn-sm d-print-none'
+						id='pwd_{b64_eleves.IDENTIFIANT}'
+						name='motdepasse'
 						data-bs-toggle='modal'
 						data-bs-target='#MotdePasseModal'
 						data-bs-uid='{b64_eleves.IDENTIFIANT}'
@@ -61,7 +61,7 @@
 					<!-- ELSE -->
 							<i class="fa fa-solid fa-plus"></i> Le compte n'a pas été utilisé
 					<!-- ENDIF -->
-					</span>
+					</button>
 					<!-- IF_DEFINED eleves.PWDLASTSET -->
 					<!-- ELSE -->
 					&nbsp;
