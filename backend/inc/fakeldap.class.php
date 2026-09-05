@@ -99,11 +99,11 @@ class AnnuaireLDAP {
 		$n = explode(' ', $nom, 3);
 		if ($long) {
 			//format elyco
-			return strtolower( $n[1] . '.' . $n[0] ) . rand(0,9999);
+			return mb_strtolower( $n[1] . '.' . $n[0], 'UTF-8' ) . rand(0,9999);
 		} else {
 			//format iaca
-			$nom = str_replace('_', '-', substr($n[0], 0, 11));
-			return strtolower( $nom . substr($n[1], 0, 1) ) . rand(0,10);
+			$nom = str_replace('_', '-', mb_substr($n[0], 0, 11, 'UTF-8'));
+			return mb_strtolower( $nom . mb_substr($n[1], 0, 1, 'UTF-8'), 'UTF-8' ) . rand(0,10);
 		}
 	}
 
