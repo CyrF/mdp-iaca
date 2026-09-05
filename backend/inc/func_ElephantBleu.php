@@ -12,21 +12,27 @@
  * @return null
  */
 function my_session_start($idletime = 300) {
-	session_start();
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
 
-	if (!empty ($_SESSION['deleted_time']) &&
-			$_SESSION['deleted_time'] < time() - ($idletime)) {
-		//$ev->creer ('La session a expirée.', E_NOTICE);
-		my_session_destroy();
-		session_start();
+	if (isset($_SESSION['last_activity'])) {
+		$elapsed = time() - $_SESSION['last_activity'];
+
+		if ($elapsed > $idletime) {
+			//$ev->creer ('La session a expirée.', E_NOTICE);
+			my_session_destroy();
+			session_start();
+
 		$_SESSION['page_par_defaut'] = (isset($_SESSION['est_connecter'])) ? 'timeout' : 'login';
-		unset ($_SESSION['deleted_time']);
+		unset ($_SESSION['last_activity']);
 		unset ($_SESSION['acces']);
 		unset ($_SESSION['nom_utilisateur']);
 		unset ($_SESSION['est_connecter']);
+		}
 	}
 
-	$_SESSION['deleted_time'] = time();
+	$_SESSION['last_activity'] = time();
 	$_SESSION['acces'] = ($_SESSION['acces']) ?? 0;
 	$_SESSION['page_par_defaut'] = ($_SESSION['page_par_defaut']) ?? false;
 	$_SESSION['user_name'] = ($_SESSION['user_name']) ?? false;
@@ -43,11 +49,16 @@ function my_session_start($idletime = 300) {
  * @return null
  */
 function my_session_destroy() {
-	$params = session_get_cookie_params();
-  setcookie (session_name(), '', time() - 42000,
-    $params["path"], $params["domain"],
-    $params["secure"], $params["httponly"]
-  );
+	$_SESSION = array();
+
+	if (ini_get("session.use_cookies")) {
+		$params = session_get_cookie_params();
+		setcookie (session_name(), '', time() - 42000,
+			$params["path"], $params["domain"],
+			$params["secure"], $params["httponly"]
+		);
+	}
+
 	session_destroy();
 }
 

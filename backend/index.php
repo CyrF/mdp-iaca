@@ -45,7 +45,6 @@ if (isset ($_GET['logout'])) {
 	exit();
 }
 
-
 // quelqu'un essaie de se connecter...
 if (! empty ($_POST)) {
 	if  ((isset ($_POST['username']) && ! empty ($_POST['username']))

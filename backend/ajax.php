@@ -18,7 +18,6 @@
  *
  */
 
-session_start();
 
 require ("inc/journal.class.php");		// journalisation d'activité
 include ("inc/func_ElephantBleu.php");	// session php, charge config, comm. avec iaca, divers.
@@ -26,6 +25,7 @@ include ('inc/' . getenv('DEPLOYMENT_MODE') . 'ldap.class.php');	// interroge ac
 
 define ('PROF', 2);	// niveau d'acces
 
+my_session_start();
 // initialise le journal
 $ev = new JournalEvent ('ActionUtilisateur');
 $ev->set_donnee ('MachineSource', ""); //gethostbyaddr ($_SERVER['REMOTE_ADDR']));
@@ -35,10 +35,11 @@ $ev->set_donnee ('Utilisateur', (($_SESSION['user_name']) ?? 'nobody'));
 // si un utilisateur est connecté
 if (isset ($_SESSION['user_id']) && ! empty ($_SESSION['user_id'])) {
 	//autologout: verifie que la session n'est pas expiree
-	if (time() - $_SESSION['timestamp'] - 10 > getenv('DECONNEXION_SESSION_INACTIVE')) {
+	if (time() - $_SESSION['last_activity'] - 10 > getenv('DECONNEXION_SESSION_INACTIVE')) {
 		$ev->creer ('AJAX - La session a expirée.', E_NOTICE);
 		session_destroy();
 		session_unset();
+		error_log("AJAX_expired. ". time() - $_SESSION['last_activity']);
 		echo "Votre session a expirée.";
 	} elseif ($_SESSION['acces'] >= PROF) {
 		// les donnees sont en json, curieusement $_POST est vide ?
