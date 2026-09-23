@@ -7,7 +7,7 @@ _Serveur offrant une interface web permettant la réinitialisation du mot de pas
 
 ## Ressources matérielles
 
-utilise un [serveur linux sur lequel est installé docker](./install_docker_on_debian.md).
+utilise un [serveur linux sur lequel est installé docker](./docs/install_docker_on_debian.md).
 
 
 ## Configuration du serveur IACA
@@ -28,7 +28,9 @@ _Extrait de la doc IACA: https://www.iacasoft.fr/outils/TCPComIACA/index.htm_
 Dans l'AD, ajouter un compte utilisateur, membre du groupe "opérateur de comptes". 
 Il sera uniquement utilisé pour forcer le mot de passe a être changé a la prochaine connexion.
 
-> todo: utiliser une delegation de droits plutot que le groupe pour que pingcastle soit content.
+> [WARN!]
+> utiliser une [delegation de droits](./docs/delegation_CA.md) plutôt que 
+> le groupe opérateur, pour que pingcastle soit content.
 
 Le renseigner dans le fichier de config, au champ `AD_UserGest`. 
 
@@ -57,7 +59,7 @@ docker compose config  # check du fichier de config, pour s'assurer qu'il lit co
 echo -n mon_mot_de_passe > password.txt
 ```
 
-Crée les certificats SSL autosigné avec la commande `./create_cert.sh`, ou suivre [Obtenir un certificat signé par la CA](./certificat_signature_CA.md). 
+Crée les certificats SSL autosigné avec la commande `./create_cert.sh`, ou suivre [Obtenir un certificat signé par la CA](./docs/certificat_signature_CA.md). 
 
 > Le container ne peut pas démarrer sans, docker affiche l'erreur : _invalid mount config, source path does not exist_
 
@@ -67,7 +69,11 @@ Démarrer l'appli :
 docker compose up -d  # Démarre les containers en arrière-plan
 docker compose exec -i backend ./test-config  # test des paramètres de connexion à l'ad
 ```
-Pour utiliser la conf sécurisée et/ou [LDAPS](./LDAP_over_SSL.md), il faut modifier légèrement la commande de démarrage :
+
+> [NOTE!]
+> LDAPS sera requis pour générer les comptes invités ou examens.
+
+Pour utiliser la conf sécurisée et/ou [LDAPS](./docs/LDAP_over_SSL.md), il faut modifier légèrement la commande de démarrage :
 
 ```bash
 docker compose -f compose.yaml -f compose.hardened.yaml up -d
