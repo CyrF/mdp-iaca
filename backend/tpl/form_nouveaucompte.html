@@ -66,6 +66,8 @@
 							oninput="updatePasswordConstraint(this.value, {MotdePasse_Longueur});" />
 						<label for="floatingPass">Mot de passe</label>
 					</div>
+    <!-- Hidden field containing the secret token -->
+    <input type="hidden" name="csrf_token" value="{csrf_token}">
 					<span class="input-group-text"
 						onclick="togglePasswordVisibility('floatingPass', 'btnEyePass')">
 						<i id="btnEyePass" class="fa fa-solid fa-eye-slash"></i>

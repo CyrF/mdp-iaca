@@ -271,6 +271,8 @@ switch ($_SESSION['page_courante']) {
 			$h->add_vars ('exams', $list);
 			$h->add_vars (array (
 				'nombre'		=> count($list),
+				'Account_Type'	=> "Examen",
+				'csrf_token'	=> $_SESSION['csrf_token'],
 				));
 			$navigation['TITRE'] .= ' - ' . $_SESSION['page_courante'];
 		} else {

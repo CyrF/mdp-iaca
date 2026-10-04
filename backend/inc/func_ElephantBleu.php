@@ -14,6 +14,7 @@
 function my_session_start($idletime = 300) {
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
+		session_regenerate_id(true); // prevents "Session Fixation" attacks.
     }
 
 	if (isset($_SESSION['last_activity'])) {
@@ -23,6 +24,7 @@ function my_session_start($idletime = 300) {
 			//$ev->creer ('La session a expirée.', E_NOTICE);
 			my_session_destroy();
 			session_start();
+			session_regenerate_id(true); // Changes the session ID
 
 		$_SESSION['page_par_defaut'] = (isset($_SESSION['est_connecter'])) ? 'timeout' : 'login';
 		unset ($_SESSION['last_activity']);
@@ -31,6 +33,10 @@ function my_session_start($idletime = 300) {
 		unset ($_SESSION['est_connecter']);
 		}
 	}
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 	$_SESSION['last_activity'] = time();
 	$_SESSION['acces'] = ($_SESSION['acces']) ?? 0;
