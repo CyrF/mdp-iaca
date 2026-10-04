@@ -1,128 +1,59 @@
 <!-- Modal -->
 <div class="modal show" id="NewAccountModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-		<div class="modal-header" style="display:initial;">
-			<h5>Création d'un nouveau compte de type Examen</h5>
-		</div>
-      	<div class="modal-body">
-				<div class="form-label">
-					Identifiant de connexion au réseau
-				</div>
-				<div class="input-group">
-					<input type="text" class="form-control bg-body"
-						id="floatingInput" name="identifiant"
-						value="This will be replaced by javascript." />					
-				</div>
-				
-				<br />
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header" style="display:initial;">
+				<h5 class="modal-title">Création d'un nouveau compte</h5>
+			</div>
+			<form action="create_user.php?pg=exam&role={Account_Type}" method="POST">
+				<div class="modal-body">
 
-				<div class="form-label">
-					Entrez un nouveau mot de passe.
-					<span class="text-danger" id ="PassConstraint">
-						{MotdePasse_Longueur} caractères minimum.
-					</span>
-				</div>
+					<div class="mb-3">
+						<label class="form-label">
+							Nom complet
+						</label>
+						<div class="input-group">
+							<input type="text" class="form-control bg-body" id="user_prenom" name="user_prenom" required
+								placeholder="Prénom" />
 
-				<!-- champ mot de passe avec generateur -->
-				<div class="input-group mb-3">
-					<button type="button" class="btn btn-outline-success"
-						data-pw-method="alea" id="PassGenBtn"
-						onclick="fill_pwd ('floatingPass', {MotdePasse_Longueur}, this);">
-						Générer
-					</button>
-					<button type="button" data-bs-toggle="dropdown"
-						class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split">
-						<span class="visually-hidden">Toggle Dropdown</span>
-					</button>
-					<ul class="dropdown-menu">
-						<li>
-							<a class="dropdown-item" href="#"
-								onclick="fill_pwd ('floatingPass', {MotdePasse_Longueur}, 'alea');" >
-								Code aléatoire de {MotdePasse_Longueur} caractères
-							</a>
-						</li>
-					<!-- IF_DEFINED AfficherPassPhrase -->
-						<li>
-							<a class="dropdown-item" href="#"
-								onclick="fill_pwd ('floatingPass', {MotdePasse_Longueur}, 'word');" >
-								Phrase code aléatoire
-							</a>
-						</li>
-					<!-- ENDIF -->
-					<!-- IF_DEFINED URLAideCreation -->
-						<li><hr class="dropdown-divider"></li>
-						<li>
-							<a class="dropdown-item" href="{URLAideCreation}" target="blank">
-								<i class="fa-solid fa-arrow-up-right-from-square"></i>
-								Aide pour la création de mots de passes
-							</a>
-						</li>
-					<!-- ENDIF -->
-					</ul>
-					<div class="form-floating flex-fill">
-						<input type="password" placeholder="" autocomplete="off"
-							class="form-control font-monospace" id="floatingPass"
-							oninput="updatePasswordConstraint(this.value, {MotdePasse_Longueur});" />
-						<label for="floatingPass">Mot de passe</label>
+							<input type="text" class="form-control bg-body" id="user_nom" name="user_nom" required
+								placeholder="Nom" />
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Durée de validité</label>
+						<select class="form-select" name="expiration">
+							<option value="1">24 Heures</option>
+							<option value="7">7 jours</option>
+							<option value="15">15 jours</option>
+						</select>
 					</div>
     <!-- Hidden field containing the secret token -->
     <input type="hidden" name="csrf_token" value="{csrf_token}">
-					<span class="input-group-text"
-						onclick="togglePasswordVisibility('floatingPass', 'btnEyePass')">
-						<i id="btnEyePass" class="fa fa-solid fa-eye-slash"></i>
-					</span>
 				</div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary"
-					data-bs-dismiss="modal">Fermer</button>
-        <button type="button" class="btn btn-primary" id="modal-save"
-					data-bs-dismiss="modal" onclick="ajax_setMdp();" disabled >Enregistrer</button>
-      </div>
-    </div>
-  </div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+					<button type="submit" class="btn btn-primary" id="saveBtn">Enregistrer</button>
+				</div>
+			</form>
+		</div>
+	</div>
 </div>
 
 <script>
+	//todo: drop ajax, just submit form to php.
+
 	document.addEventListener('DOMContentLoaded', function () {
-/**
- * prérempli la fenetre modal avec les bonnes valeurs
- *
- *	@return null
- */
-var NewAccountModal = document.getElementById('NewAccountModal')
+		// crée une instance du modal, requis avec BS5
+		const NewAccountModal = document.getElementById('NewAccountModal');
+		bootstrap.Modal.getOrCreateInstance(NewAccountModal);
 
-  console.log('Bootstrap Instance:', bootstrap.Modal.getOrCreateInstance(NewAccountModal));
-
-NewAccountModal.addEventListener('show.bs.modal', function (event) {
-  // Button that triggered the modal
-  var button = event.relatedTarget
-  // Extract info from data-bs-* attributes
-  //var NomComplet = button.getAttribute('data-bs-name')
-  //var Identifiant = button.getAttribute('data-bs-uid')
-  // Update the modal's content.
-  
-  //var modalBodyId = NewAccountModal.querySelector('.modal-body #floatingInput')
-  //var modalBodyPw = NewAccountModal.querySelector('.modal-body #floatingPass')
-  
-  //modalBodyId.value = atob(Identifiant)
-  //modalBodyPw.value = ''
-})
-
-/**
- * valide la fenetre quand on apppuie sur entree
- *
- *	@return null
- */
-var input = document.getElementById("floatingPass");
-input.addEventListener("keyup", function(event) {
-  // Number 13 is the "Enter" key on the keyboard
-  if (event.keyCode === 13) {
-    event.preventDefault();
-    // Trigger the button element with a click
-    document.getElementById("modal-save").click();
-  }
-});
+		// desactive le bouton save, pour éviter doublons.
+		document.querySelector('form').addEventListener('submit', function (e) {
+			const btn = document.getElementById('saveBtn');
+			btn.disabled = true;
+			btn.innerHTML = 'Création...';
+		});
 	});
 </script>

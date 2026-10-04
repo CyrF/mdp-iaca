@@ -6,9 +6,9 @@
  *
  *	@return null
  */
-function ajax_getMdp (elem) {
-	var btn_pwd = document.getElementById (elem);
-	if ((btn_pwd.hasAttribute ("data-bs-toggle")) || (btn_pwd.disabled)) {
+function ajax_getMdp(elem) {
+	var btn_pwd = document.getElementById(elem);
+	if ((btn_pwd.hasAttribute("data-bs-toggle")) || (btn_pwd.disabled)) {
 		updatePasswordConstraint(0);
 		// c'est un bouton reset, on fait rien.
 		return;
@@ -17,7 +17,7 @@ function ajax_getMdp (elem) {
 		// le mot de passe est affiché, on le masque
 		btn_pwd.className = 'btn btn-outline-success btn-sm'
 		btn_pwd.innerHTML = 'Voir le mot de passe';
-		btn_pwd.removeAttribute ('enclair');
+		btn_pwd.removeAttribute('enclair');
 	} else {
 		// affiche un spinner
 		btn_pwd.disabled = true
@@ -25,30 +25,30 @@ function ajax_getMdp (elem) {
 		btn_pwd.innerHTML = '<img src="./runcat2.gif" width="76" height="32">&nbsp;travail en cours...';
 		// requete AJAX
 		RequestVars = {
-			get: btn_pwd.getAttribute ('data-bs-uid')
+			get: btn_pwd.getAttribute('data-bs-uid')
 		};
-		var myRequest = new Request ('ajax.php', {
+		var myRequest = new Request('ajax.php', {
 			method: 'POST',
 			cache: 'no-cache',
-			body: JSON.stringify (RequestVars)
+			body: JSON.stringify(RequestVars)
 		});
-		
-		fetch (myRequest).then (function (response) {
-			return response.text().then (function (text) {
+
+		fetch(myRequest).then(function (response) {
+			return response.text().then(function (text) {
 				if (text == '**************') {
 					// masque dans iaca, transforme le bouton en reset
 					btn_pwd.disabled = false
 					btn_pwd.className = 'btn btn-outline-success btn-sm'
 					btn_pwd.innerHTML = 'Le mot de passe est masqué : le réinitialiser';
-					btn_pwd.setAttribute ('data-bs-toggle', "modal");
+					btn_pwd.setAttribute('data-bs-toggle', "modal");
 				} else if (text == "Votre session a expirée.") {
-					window.location.replace ("?sessionexpired");
+					window.location.replace("?sessionexpired");
 				} else {
 					// affichage
 					btn_pwd.disabled = false
 					btn_pwd.innerHTML = text;
-					btn_pwd.setAttribute ('enclair', true);
-					document.getElementById ('btnshow').innerHTML = 'Masquer tous';
+					btn_pwd.setAttribute('enclair', true);
+					document.getElementById('btnshow').innerHTML = 'Masquer tous';
 				}
 			});
 		});
@@ -61,49 +61,78 @@ function ajax_getMdp (elem) {
  *	@return null
  */
 function ajax_setMdp() {
-    var modalBodyId = MotdePasseModal.querySelector ('.modal-body #floatingInput')
-    var modalBodyPw = MotdePasseModal.querySelector ('.modal-body #floatingPass')
-	var btn_pwd = document.getElementById ('pwd_' + b64 (modalBodyId.value));
+	var modalBodyId = MotdePasseModal.querySelector('.modal-body #floatingInput')
+	var modalBodyPw = MotdePasseModal.querySelector('.modal-body #floatingPass')
+	var btn_pwd = document.getElementById('pwd_' + b64(modalBodyId.value));
 	//check si le mdp n'est pas vide
 	if ((modalBodyPw.value.length >= 5) && (!btn_pwd.disabled)) {
 		// affiche un spinner
 		btn_pwd.disabled = true
 		btn_pwd.className = 'btn btn-sm'
-		btn_pwd.removeAttribute ('data-bs-toggle');
+		btn_pwd.removeAttribute('data-bs-toggle');
 		btn_pwd.innerHTML = '<img src="./runcat2.gif" width="76" height="32">&nbsp;Travail en cours...';
 		// requete AJAX
 		RequestVars = {
-			set: btoa (modalBodyPw.value),
-			otp: MotdePasseModal.querySelector ('.modal-body #pwdonetime').checked,
-			uid: btn_pwd.getAttribute ('data-bs-uid')
+			set: btoa(modalBodyPw.value),
+			otp: MotdePasseModal.querySelector('.modal-body #pwdonetime').checked,
+			uid: btn_pwd.getAttribute('data-bs-uid')
 		};
-		var myRequest = new Request ('ajax.php', {
+		var myRequest = new Request('ajax.php', {
 			method: 'POST',
 			cache: 'no-cache',
-			body: JSON.stringify (RequestVars)
+			body: JSON.stringify(RequestVars)
 		});
-		fetch (myRequest).then (function (response) {
-			return response.text().then (function (text) {
+		fetch(myRequest).then(function (response) {
+			return response.text().then(function (text) {
 				if (text == 'OK') {
 					// affichage
 					btn_pwd.disabled = false
 					btn_pwd.innerHTML = '';//modalBodyPw.value;
 					btn_pwd.innerHTML += '&nbsp;<span type="button" class="btn btn-outline-secondary btn-sm d-print-none">Le mot de passe a été réinitialisé.</span>';
-					btn_pwd.setAttribute ('enclair', true);
-					btn_pwd.setAttribute ('name', 'motdepasse');
-					btn_show = document.getElementById ('btnshow');
+					btn_pwd.setAttribute('enclair', true);
+					btn_pwd.setAttribute('name', 'motdepasse');
+					btn_show = document.getElementById('btnshow');
 					if (btn_show) {
 						btnshow.innerHTML = 'Masquer tous';
 					}
 				} else if (text == "Votre session a expirée.") {
-					window.location.replace ("?sessionexpired");
+					window.location.replace("?sessionexpired");
 				} else {
 					btn_pwd.disabled = false
 					btn_pwd.className = 'btn btn-outline-danger btn-sm'
 					btn_pwd.innerHTML = 'Erreur. Réinitialiser avec un nouveau mot de passe. ';
-					btn_pwd.setAttribute ('data-bs-toggle', "modal");
+					btn_pwd.setAttribute('data-bs-toggle', "modal");
 				}
 			});
 		});
 	}
+}
+
+/**
+ * todo: drop ajax, just submit form to php.
+ *
+ *	@return null
+ */
+function ajax_newAccount(accountType, passwordLength) {
+	const newAccountModal = document.getElementById('NewAccountModal');
+	const userPrenom = newAccountModal.querySelector('.modal-body #user_prenom').value;
+	const userNom = newAccountModal.querySelector('.modal-body #user_nom').value;
+	const accountPrefix = accountType.toLowerCase().substr(0, 3) + "-"
+
+	var userUID = accountPrefix + userPrenom + userNom;
+	var newPassword = generate_pwd(passwordLength);
+	// todo: ldap request to check if avaliable.
+
+	console.log("will add a account: " + userUID + " for " + userPrenom + " " + userNom + " with the password: " + newPassword);
+	// todo: create user in ad.
+	// todo: update table.
+	const tableAccounts = document.getElementById('tableAccounts');
+
+	/*
+	user_prenom = inv-jbon
+	password = ...
+	user_nom = jean bon
+	description = {by=uid,...}
+	expiration = ...
+	*/
 }

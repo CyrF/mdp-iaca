@@ -253,6 +253,14 @@ switch ($_SESSION['page_courante']) {
 			$h->add_vars (array (
 				'nombre'		=> count($list),
 				));
+
+			if (isset($_GET['success'])) {
+				$h->add_vars (array ('msg_create_ok' => true));
+			}
+			if (isset($_GET['error'])) {
+				$h->add_vars (array ('msg_create_err' => $_GET['error']));
+			}
+
 			$navigation['TITRE'] .= ' - ' . $_SESSION['page_courante'];
 		} else {
 			$ev->creer ('Acces non autorisé a ' . $_SESSION['page_courante'], E_ERROR);
